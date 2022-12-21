@@ -20,6 +20,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/userGroups")
+@CrossOrigin(origins = "*")
 public class UserGroupController {
 
     private final UserGroupService userGroupService;

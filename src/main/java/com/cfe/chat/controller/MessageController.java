@@ -20,6 +20,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/messages")
+@CrossOrigin(origins = "*")
 public class MessageController {
 
     private final MessageService messageService;

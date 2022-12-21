@@ -26,6 +26,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/groups")
+@CrossOrigin(origins = "*")
 public class GroupController {
 
     private final GroupService groupService;

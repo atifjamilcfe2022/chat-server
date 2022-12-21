@@ -23,6 +23,7 @@ import java.util.*;
 @Slf4j
 @Controller
 @AllArgsConstructor
+@CrossOrigin(origins = "*")
 public class ChatController {
 
     private final ChatService chatService;
