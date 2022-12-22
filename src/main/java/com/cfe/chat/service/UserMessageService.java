@@ -102,4 +102,11 @@ public class UserMessageService {
         userMessageRepository.save(userMessage);
         log.info("UserMessages updated successfully");
     }
+
+    public List<UserMessage> getUserByLastChat(Long userId) {
+        log.debug("Getting users who chat with user: {} with their last message", userId);
+        List<UserMessage> userMessages = userMessageRepository.findRecipientChatWithUser(userService.getUser(userId));
+        log.info("Found {} userMessages", userMessages.size());
+        return userMessages;
+    }
 }

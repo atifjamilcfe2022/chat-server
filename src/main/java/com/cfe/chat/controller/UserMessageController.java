@@ -104,4 +104,13 @@ public class UserMessageController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{userId}/lastChat")
+    private ResponseEntity<?> lastChat(@PathVariable Long userId) {
+        log.debug("getting UserMessages as lastChat by user Id: {}", userId);
+        List<UserMessage> userMessages = userMessageService.getUserByLastChat(userId);
+        List<UserMessageDto> userMessageDtos = new ArrayList<>();
+        userMessages.forEach(userMessage -> userMessageDtos.add(userMessageMapper.toUserMessageDto(userMessage)));
+        log.info("user messages found :{}", userMessageDtos.size());
+        return ResponseEntity.ok(UserMessageResponse.builder().count(userMessageDtos.size()).data(userMessageDtos).build());
+    }
 }

@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserMessageDto {
 
-    private Long userMessageId;
+    private Long id;
     private MessageStatus messageStatus;
     private Boolean active;
-    private UserDto user;
+    private UserDto receiver;
     private MessageDto message;
 }

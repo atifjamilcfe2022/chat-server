@@ -5,7 +5,6 @@ import com.cfe.chat.exception.DataNotFoundException;
 import com.cfe.chat.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.ObjectNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

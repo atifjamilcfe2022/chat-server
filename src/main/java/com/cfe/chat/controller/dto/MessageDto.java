@@ -1,6 +1,5 @@
 package com.cfe.chat.controller.dto;
 
-import com.cfe.chat.enums.MessageStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +13,6 @@ public class MessageDto {
 
     private Long id;
     private String messageBody;
-    private UserDto user;
+    private UserDto sender;
     private boolean active;
 }

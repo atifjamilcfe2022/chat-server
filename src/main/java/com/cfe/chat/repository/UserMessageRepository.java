@@ -17,4 +17,10 @@ public interface UserMessageRepository extends JpaRepository<UserMessage, Long> 
             "WHERE m.sender IN (:sender, :receiver) AND um.receiver IN (:sender, :receiver) " +
             "AND m.createAt > :dateTime")
     List<UserMessageHistory> findUserMessageHistory(User sender, User receiver, LocalDateTime dateTime);
+
+    @Query("SELECT um FROM UserMessage um WHERE um.id IN " +
+            "(SELECT MAX(um1.id) FROM UserMessage um1 where um1.message IN " +
+            "(SELECT m FROM Message m WHERE m.sender = :sender) " +
+            "GROUP BY um1.receiver)")
+    List<UserMessage> findRecipientChatWithUser(User sender);
 }
