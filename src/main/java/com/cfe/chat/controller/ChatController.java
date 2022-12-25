@@ -5,7 +5,6 @@ import com.cfe.chat.controller.response.ChatMessageResponse;
 import com.cfe.chat.dto.ActiveInfo;
 import com.cfe.chat.dto.ChatMessage;
 import com.cfe.chat.dto.CheckActiveRequest;
-import com.cfe.chat.service.GroupService;
 import com.cfe.chat.service.ChatService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +27,7 @@ public class ChatController {
 
     private final ChatService chatService;
 //    private final GroupService groupService;
-    private final SimpMessagingTemplate simpMessagingTemplate;
+//    private final SimpMessagingTemplate simpMessagingTemplate;
 
 //    private static Map<Long, List<Long>> groupMembersInformationList = new HashMap<>();
 //
@@ -78,7 +77,7 @@ public class ChatController {
 //                .receiverId(chatMessageRequest.getReceiverId())
 //                .messageContent(chatMessageRequest.getMessageContent())
 //                .messageType(chatMessageRequest.getMessageType())
-//                .date(LocalDateTime.now().toString())
+//                .date(OffsetDateTime.now().toString())
 //                .build();
 
         log.info("Message Processed: {}", chatMessageResponse);

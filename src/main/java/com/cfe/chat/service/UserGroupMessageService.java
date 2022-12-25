@@ -1,17 +1,18 @@
 package com.cfe.chat.service;
 
 import com.cfe.chat.config.properties.ChatServerProperties;
-import com.cfe.chat.controller.response.GroupMessageHistory;
+import com.cfe.chat.domain.custom.GroupMessageHistory;
 import com.cfe.chat.domain.*;
 import com.cfe.chat.enums.MessageStatus;
 import com.cfe.chat.exception.DataNotFoundException;
 import com.cfe.chat.repository.UserGroupMessageRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Slf4j
@@ -22,6 +23,7 @@ public class UserGroupMessageService {
     private final ChatServerProperties chatServerProperties;
     private final UserGroupMessageRepository userGroupMessageRepository;
     private final UserGroupService userGroupService;
+    private final MessageService messageService;
 
     public UserGroupMessage getUserGroupMessage(Long userGroupMessageId){
         log.debug("Getting userGroupMessage by Id: {}", userGroupMessageId);
@@ -44,7 +46,7 @@ public class UserGroupMessageService {
 
     public List<GroupMessageHistory> messagesHistoryByGroupForUser(Long groupId, Long userId) {
         log.debug("finding userGroupMessages history by group: {} for user: {}", groupId, userId);
-        LocalDateTime dateTime = LocalDate.now().atStartOfDay().minusDays(chatServerProperties.getMessageHistoryDays());
+        OffsetDateTime dateTime = OffsetDateTime.now().minusDays(chatServerProperties.getMessageHistoryDays());
         List<UserGroup> userGroups = userGroupService.findUsersInGroup(groupId);
         List<GroupMessageHistory> groupMessageHistories =
                 userGroupMessageRepository.findUserMessageHistory(userGroups, dateTime);
@@ -58,5 +60,25 @@ public class UserGroupMessageService {
         userGroupMessage.setMessageStatus(messageStatus);
         userGroupMessageRepository.save(userGroupMessage);
         log.info("updated userGroupMessages status");
+    }
+
+    @Scheduled(cron = "${cron.expression.group}")
+    public void deleteOldGroupMessage() {
+        log.debug("Cron job execution started for deleting group messages");
+        long startTime = System.currentTimeMillis() / 1000;
+        List<Message> messages = messageService.findByCreateAt(ZonedDateTime.now().minusDays(chatServerProperties.getMessageHistoryDays()));
+        if(!messages.isEmpty()) {
+            List<UserGroupMessage> userGroupMessages = userGroupMessageRepository.findByMessageIn(messages);
+            if(!userGroupMessages.isEmpty()){
+                userGroupMessages.forEach(userGroupMessage -> {
+                    log.debug("deleting userGroupMessage: {}", userGroupMessage);
+                    userGroupMessageRepository.delete(userGroupMessage);
+                    log.info("userGroupMessage deleted successfully");
+                });
+            }
+            messages.forEach(messageService::deleteMessage);
+        }
+        long endTime = System.currentTimeMillis() / 1000;
+        log.debug("Cron job execution ended. Total time taken: {} ", endTime - startTime);
     }
 }

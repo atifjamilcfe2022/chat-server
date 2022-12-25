@@ -1,14 +1,17 @@
 package com.cfe.chat.controller;
 
 import com.cfe.chat.controller.dto.UserMessageDto;
+import com.cfe.chat.controller.dto.UserMessageHistoryDto;
+import com.cfe.chat.controller.mapper.UserMapper;
 import com.cfe.chat.controller.mapper.UserMessageMapper;
 import com.cfe.chat.controller.request.UserMessageRequest;
-import com.cfe.chat.controller.response.UserMessageHistory;
+import com.cfe.chat.domain.custom.UserMessageHistory;
 import com.cfe.chat.controller.response.UserMessageHistoryResponse;
 import com.cfe.chat.controller.response.UserMessageResponse;
 import com.cfe.chat.domain.UserMessage;
 import com.cfe.chat.enums.MessageStatus;
 import com.cfe.chat.exception.InvalidDataUpdateException;
+import com.cfe.chat.repository.UserRepository;
 import com.cfe.chat.service.UserMessageService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +28,11 @@ import java.util.List;
 @RequestMapping("/userMessages")
 @CrossOrigin(origins = "*")
 public class UserMessageController {
-    
+
     private final UserMessageService userMessageService;
 
     private final UserMessageMapper userMessageMapper;
+    private final UserMapper userMapper;
 
 
     @GetMapping
@@ -92,7 +96,19 @@ public class UserMessageController {
         log.debug("Getting users messages history");
         List<UserMessageHistory> userMessageHistories = userMessageService.userMessagesHistory(senderId, receiverId);
         log.info("messages of user found :{}", userMessageHistories.size());
-        return ResponseEntity.ok(UserMessageHistoryResponse.builder().count(userMessageHistories.size()).data(userMessageHistories).build());
+        List<UserMessageHistoryDto> userMessageHistoryDtos = new ArrayList<>();
+        userMessageHistories.forEach(userMessageHistory ->  {
+            UserMessageHistoryDto userMessageHistoryDto = UserMessageHistoryDto.builder()
+                    .id(userMessageHistory.getId())
+                    .messageBody(userMessageHistory.getMessageBody())
+                    .messageStatus(userMessageHistory.getMessageStatus())
+                    .createdAt(userMessageHistory.getCreatedAt())
+                    .sender(userMapper.toUserDto(userMessageHistory.getSender()))
+                    .receiver(userMapper.toUserDto(userMessageHistory.getReceiver()))
+                    .build();
+            userMessageHistoryDtos.add(userMessageHistoryDto);
+                });
+        return ResponseEntity.ok(UserMessageHistoryResponse.builder().count(userMessageHistoryDtos.size()).data(userMessageHistoryDtos).build());
     }
 
     @GetMapping("/{userMessageId}/status/{messageStatus}")

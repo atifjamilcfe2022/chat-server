@@ -2,6 +2,15 @@ server:
   port: 8081
 
 spring:
+  task:
+    scheduling:
+      pool:
+        size: 5
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
   datasource:
     url: jdbc:mysql://localhost:3306/rkyv_system_db?useUnicode=true&characterEncoding=utf8&useSSL=false
     username: root
@@ -29,3 +38,7 @@ logging:
     com:
       cfe:
         chat: DEBUG
+cron:
+  expression:
+    user: 0 0 0 * * *
+    group: 0 0 0 * * *

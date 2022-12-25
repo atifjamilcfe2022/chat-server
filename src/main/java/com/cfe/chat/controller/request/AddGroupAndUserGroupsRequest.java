@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserGroupRequest {
+public class AddGroupAndUserGroupsRequest {
 
-    private Long userGroupId;
-    private Long userId;
-    private Long groupId;
-    private boolean active;
+    private String name;
+    private List<Long> userIds;
 }

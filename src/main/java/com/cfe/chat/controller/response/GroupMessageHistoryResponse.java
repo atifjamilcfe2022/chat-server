@@ -1,6 +1,6 @@
 package com.cfe.chat.controller.response;
 
-import com.cfe.chat.controller.dto.UserMessageDto;
+import com.cfe.chat.controller.dto.GroupMessageHistoryDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,5 +15,5 @@ import java.util.List;
 public class GroupMessageHistoryResponse {
 
     private Integer count;
-    private List<GroupMessageHistory> data;
+    private List<GroupMessageHistoryDto> data;
 }

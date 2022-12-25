@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.OffsetDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,6 +17,7 @@ public class UserMessageDto {
     private Long id;
     private MessageStatus messageStatus;
     private Boolean active;
+    private OffsetDateTime createdAt;
     private UserDto receiver;
     private MessageDto message;
 }

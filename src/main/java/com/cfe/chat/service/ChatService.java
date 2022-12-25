@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,12 +40,12 @@ public class ChatService {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     public List<ActiveInfo> checkActive(@NonNull List<Long> userIds) {
-        log.info("checking active user for list: {}", userIds.toString());
+        log.info("checking active user for list: {}", userIds);
         List<ActiveInfo> activeInfos = new ArrayList<>();
         userIds.forEach(userId -> {
             ActiveInfo activeInfo = ChatServerConstants.activeInfoMap.get(userId);
             if (activeInfo != null) {
-                if (Duration.between(LocalDateTime.now(), activeInfo.getPingTime())
+                if (Duration.between(OffsetDateTime.now(), activeInfo.getPingTime())
                         .get(ChronoUnit.SECONDS) < Long.parseLong(chatServerProperties.getTimeToLive())) {
                     activeInfo.setAlive(Boolean.TRUE);
                 }
@@ -60,10 +60,10 @@ public class ChatService {
     public void updateState(Long userId) {
         ActiveInfo activeInfo = ChatServerConstants.activeInfoMap.get(userId);
         if (activeInfo != null) {
-            activeInfo.setPingTime(LocalDateTime.now());
+            activeInfo.setPingTime(OffsetDateTime.now());
             ChatServerConstants.activeInfoMap.replace(userId, activeInfo);
         } else {
-            activeInfo = ActiveInfo.builder().userId(userId).pingTime(LocalDateTime.now()).build();
+            activeInfo = ActiveInfo.builder().userId(userId).pingTime(OffsetDateTime.now()).build();
             ChatServerConstants.activeInfoMap.put(userId, activeInfo);
         }
     }
@@ -84,7 +84,7 @@ public class ChatService {
 
         chatMessageResponse.setMessageType(chatMessageRequest.getMessageType());
         chatMessageResponse.setMessageContent(chatMessageRequest.getMessageContent());
-        chatMessageResponse.setDate(LocalDateTime.now().toString());
+        chatMessageResponse.setDate(OffsetDateTime.now().toString());
         chatMessageResponse.setSenderId(chatMessageRequest.getSenderId());
 
         if (chatMessageRequest.getReceiverId() != null) {

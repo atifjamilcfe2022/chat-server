@@ -1,24 +1,23 @@
-package com.cfe.chat.controller.response;
+package com.cfe.chat.controller.dto;
 
-import com.cfe.chat.controller.dto.UserDto;
-import com.cfe.chat.domain.User;
 import com.cfe.chat.enums.MessageStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserMessageHistory {
+public class UserMessageHistoryDto {
 
     private long id;
     private String messageBody;
-    private User sender;
-    private User receiver;
+    private UserDto sender;
+    private UserDto receiver;
     private MessageStatus messageStatus;
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 }

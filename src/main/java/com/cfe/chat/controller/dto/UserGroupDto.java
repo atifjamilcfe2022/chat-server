@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.OffsetDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -14,4 +16,5 @@ public class UserGroupDto {
     private UserDto user;
     private GroupDto group;
     private boolean active;
+    private OffsetDateTime createdAt;
 }

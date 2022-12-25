@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Data
 @Builder
@@ -15,5 +15,5 @@ public class ActiveInfo {
 
     private Long userId;
     private boolean alive;
-    private LocalDateTime pingTime = LocalDateTime.now();
+    private OffsetDateTime pingTime = OffsetDateTime.now();
 }

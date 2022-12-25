@@ -1,6 +1,5 @@
 package com.cfe.chat.domain;
 
-import com.cfe.chat.enums.MessageStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Data
 @Builder
@@ -31,10 +30,10 @@ public class Message implements Serializable {
     private String messageBody;
 
     @CreationTimestamp
-    private LocalDateTime createAt;
+    private OffsetDateTime createAt;
 
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    private OffsetDateTime updatedAt;
 
     @Column(name = "active")
     private Boolean active;

@@ -2,8 +2,11 @@ package com.cfe.chat.controller;
 
 import com.cfe.chat.controller.dto.UserGroupDto;
 import com.cfe.chat.controller.mapper.UserGroupMapper;
+import com.cfe.chat.controller.request.AddGroupAndUserGroupsRequest;
 import com.cfe.chat.controller.request.UserGroupRequest;
+import com.cfe.chat.controller.response.AddGroupAndUserGroupsResponse;
 import com.cfe.chat.controller.response.UserGroupResponse;
+import com.cfe.chat.domain.Group;
 import com.cfe.chat.domain.UserGroup;
 import com.cfe.chat.exception.InvalidDataUpdateException;
 import com.cfe.chat.service.UserGroupService;
@@ -13,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Positive;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,5 +94,15 @@ public class UserGroupController {
         userGroups.forEach(userGroup -> userGroupDtos.add(userGroupMapper.toUserGroupDto(userGroup)));
         log.info("groups of user found :{}", userGroupDtos.size());
         return ResponseEntity.ok(UserGroupResponse.builder().count(userGroupDtos.size()).userGroupDtos(userGroupDtos).build());
+    }
+
+    @PostMapping("/groups/{groupId}/users")
+    @ResponseStatus(HttpStatus.CREATED)
+    private ResponseEntity<?> addGroupAndUserGroups(
+            @Positive @PathVariable Long groupId,
+            @RequestBody AddGroupAndUserGroupsRequest addGroupAndUserGroupsRequest) {
+        log.debug("adding group and UserGroups request: {}", addGroupAndUserGroupsRequest);
+        Group group = userGroupService.addGroupAndUserGroups(groupId, addGroupAndUserGroupsRequest);
+        return ResponseEntity.ok(AddGroupAndUserGroupsResponse.builder().groupId(group.getId()).build());
     }
 }

@@ -1,13 +1,18 @@
 package com.cfe.chat.service;
 
+import com.cfe.chat.controller.request.AddGroupAndUserGroupsRequest;
+import com.cfe.chat.controller.request.ChatGroupRequest;
 import com.cfe.chat.controller.request.UserGroupRequest;
+import com.cfe.chat.domain.Group;
 import com.cfe.chat.domain.UserGroup;
 import com.cfe.chat.exception.DataNotFoundException;
 import com.cfe.chat.repository.UserGroupRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -37,7 +42,6 @@ public class UserGroupService {
     public UserGroup addUserGroup(UserGroupRequest userGroupRequest) {
         log.debug("adding user group details: {}", userGroupRequest);
         UserGroup userGroup = UserGroup.builder()
-                .name(userGroupRequest.getName())
                 .user(userService.getUser(userGroupRequest.getUserId()))
                 .group(groupService.getChatGroup(userGroupRequest.getGroupId()))
                 .build();
@@ -50,7 +54,6 @@ public class UserGroupService {
         log.debug("updating user group details: {}", userGroupRequest);
         UserGroup userGroup = getUserGroup(userGroupRequest.getUserGroupId());
 
-        userGroup.setName(userGroupRequest.getName());
         userGroup.setUser(userService.getUser(userGroupRequest.getUserId()));
         userGroup.setGroup(groupService.getChatGroup(userGroupRequest.getGroupId()));
 
@@ -79,12 +82,45 @@ public class UserGroupService {
         return userGroups;
     }
 
-    public UserGroup findByUserGroup(Long userId, Long groupId) {
-        log.debug("finding user groups by user id: {} and group id: {}", userId, groupId);
-        UserGroup userGroup = userGroupRepository.findByUserGroup(userService.getUser(userId), groupService.getChatGroup(groupId))
-                .orElseThrow(() -> new DataNotFoundException("User group not found with userId: "
-                        + userId + ", and groupId: " + groupId));
-        log.info("user group found: {}", userGroup);
-        return userGroup;
+//    public UserGroup findByUserGroup(Long userId, Long groupId) {
+//        log.debug("finding user groups by user id: {} and group id: {}", userId, groupId);
+//        UserGroup userGroup = userGroupRepository.findByUserGroup(userService.getUser(userId), groupService.getChatGroup(groupId))
+//                .orElseThrow(() -> new DataNotFoundException("User group not found with userId: "
+//                        + userId + ", and groupId: " + groupId));
+//        log.info("user group found: {}", userGroup);
+//        return userGroup;
+//    }
+
+    public Group addGroupAndUserGroups(Long groupId, AddGroupAndUserGroupsRequest addGroupAndUserGroupsRequest) {
+        log.debug("add group and userGroups request: {}", addGroupAndUserGroupsRequest);
+        Group group;
+        if (groupId == null || groupId == 0) {
+            group = groupService.addChatGroup(
+                    ChatGroupRequest.builder()
+                            .name(addGroupAndUserGroupsRequest.getName())
+                            .active(Boolean.TRUE)
+                            .build()
+            );
+        } else {
+            group = groupService.getChatGroup(groupId);
+        }
+        if (!CollectionUtils.isEmpty(addGroupAndUserGroupsRequest.getUserIds())) {
+            List<Long> userIds = new ArrayList<>();
+            findUsersInGroup(group.getId()).forEach(userGroup -> userIds.add(userGroup.getUser().getId()));
+            addGroupAndUserGroupsRequest.getUserIds().forEach(userId -> {
+                if (!userIds.contains(userId)) {
+                    UserGroup userGroup = UserGroup.builder()
+                            .user(userService.getUser(userId))
+                            .group(group)
+                            .active(Boolean.TRUE)
+                            .build();
+                    userGroupRepository.save(userGroup);
+                } else {
+                    log.warn("User with id: {} is already presend in the group: {}", userId, groupId);
+                }
+            });
+        }
+        log.info("group and userGroup information saved successfully");
+        return group;
     }
 }

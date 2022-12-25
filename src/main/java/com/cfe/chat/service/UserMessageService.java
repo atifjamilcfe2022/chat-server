@@ -2,7 +2,7 @@ package com.cfe.chat.service;
 
 import com.cfe.chat.config.properties.ChatServerProperties;
 import com.cfe.chat.controller.request.UserMessageRequest;
-import com.cfe.chat.controller.response.UserMessageHistory;
+import com.cfe.chat.domain.custom.UserMessageHistory;
 import com.cfe.chat.domain.Message;
 import com.cfe.chat.domain.UserMessage;
 import com.cfe.chat.domain.User;
@@ -11,10 +11,11 @@ import com.cfe.chat.exception.DataNotFoundException;
 import com.cfe.chat.repository.UserMessageRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Slf4j
@@ -87,7 +88,7 @@ public class UserMessageService {
 
     public List<UserMessageHistory> userMessagesHistory(Long senderId, Long receiverId) {
         log.debug("finding userMessage history by sender: {} and receiver: {}", senderId, receiverId);
-        LocalDateTime dateTime = LocalDate.now().atStartOfDay().minusDays(chatServerProperties.getMessageHistoryDays());
+        OffsetDateTime dateTime = OffsetDateTime.now().minusDays(chatServerProperties.getMessageHistoryDays());
         List<UserMessageHistory> userMessageHistories =
                 userMessageRepository.findUserMessageHistory(
                         userService.getUser(senderId), userService.getUser(receiverId), dateTime);
@@ -106,7 +107,27 @@ public class UserMessageService {
     public List<UserMessage> getUserByLastChat(Long userId) {
         log.debug("Getting users who chat with user: {} with their last message", userId);
         List<UserMessage> userMessages = userMessageRepository.findRecipientChatWithUser(userService.getUser(userId));
-        log.info("Found {} userMessages", userMessages.size());
+        log.info("Found {} userMessages", userMessages);
         return userMessages;
+    }
+
+    @Scheduled(cron = "${cron.expression.user}")
+    public void deleteOldUserMessage() {
+        log.debug("Cron job execution started for deleting user messages");
+        long startTime = System.currentTimeMillis() / 1000;
+        List<Message> messages = messageService.findByCreateAt(ZonedDateTime.now().minusDays(chatServerProperties.getMessageHistoryDays()));
+        if(!messages.isEmpty()) {
+            List<UserMessage> userMessages = userMessageRepository.findByMessageIn(messages);
+            if(!userMessages.isEmpty()){
+                userMessages.forEach(userMessage -> {
+                    log.debug("deleting userMessage: {}", userMessage);
+                    userMessageRepository.delete(userMessage);
+                    log.info("userMessage deleted successfully");
+                });
+            }
+            messages.forEach(messageService::deleteMessage);
+        }
+        long endTime = System.currentTimeMillis() / 1000;
+        log.debug("Cron job execution ended. Total time taken: {} ", endTime - startTime);
     }
 }

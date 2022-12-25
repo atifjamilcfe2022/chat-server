@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Slf4j
@@ -67,5 +68,20 @@ public class MessageService {
 
         messageRepository.delete(message);
         log.info("message deleted: {}", message);
+    }
+
+    public void deleteMessage(Message message) {
+        log.debug("Deleting message: {}", message);
+        if(message != null) {
+            messageRepository.delete(message);
+            log.info("message deleted successfully");
+        }
+    }
+
+    public List<Message> findByCreateAt(ZonedDateTime createAt) {
+        log.debug("finding message by create date: {}", createAt);
+        List<Message> messages = messageRepository.findByCreateAtBefore(createAt);
+        log.debug("found messages: {}", messages.size());
+        return messages;
     }
 }

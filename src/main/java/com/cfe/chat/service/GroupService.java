@@ -32,7 +32,7 @@ public class GroupService {
 
         List<Group> groups = groupRepository.findAll();
 
-        log.info("Chat groups found: {}", groups.size());
+        log.info("Groups found: {}", groups.size());
         return groups;
     }
 
@@ -46,7 +46,7 @@ public class GroupService {
 
         groupRepository.save(group);
 
-        log.info("Chat Group saved: {}", group);
+        log.info("Group saved: {}", group);
         return group;
     }
 
