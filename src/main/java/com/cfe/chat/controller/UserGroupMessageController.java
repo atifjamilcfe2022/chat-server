@@ -25,10 +25,10 @@ public class UserGroupMessageController {
     private final UserGroupMessageService userGroupMessageService;
     private final UserMapper userMapper;
 
-    @GetMapping("/groups/{groupId}/users/{userId}/history")
-    private ResponseEntity<?> messagesHistoryByGroupForUser(@PathVariable Long groupId, @PathVariable Long userId) {
-        log.debug("Getting messages history of a group for a user");
-        List<GroupMessageHistory> groupMessageHistories = userGroupMessageService.messagesHistoryByGroupForUser(groupId, userId);
+    @GetMapping("/groups/{groupId}/history")
+    private ResponseEntity<?> messagesHistoryByGroup(@PathVariable Long groupId) {
+        log.debug("Getting messages history of a group");
+        List<GroupMessageHistory> groupMessageHistories = userGroupMessageService.messagesHistoryByGroup(groupId);
         log.info("group messages of user found :{}", groupMessageHistories.size());
 
         List<GroupMessageHistoryDto> groupMessageHistoryDtos = new ArrayList<>();

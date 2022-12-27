@@ -2,7 +2,7 @@ package com.cfe.chat.controller;
 
 import com.cfe.chat.controller.dto.GroupDto;
 import com.cfe.chat.controller.mapper.GroupMapper;
-import com.cfe.chat.controller.request.ChatGroupRequest;
+import com.cfe.chat.controller.request.GroupRequest;
 import com.cfe.chat.controller.response.ChatGroupResponse;
 import com.cfe.chat.domain.Group;
 import com.cfe.chat.exception.InvalidDataUpdateException;
@@ -33,58 +33,57 @@ public class GroupController {
     private final GroupMapper groupMapper;
 
     @GetMapping
-    private ResponseEntity<?> chatGroups() {
-        log.debug("getting ChatGroups");
-        List<Group> groups = groupService.getChatGroups();
+    private ResponseEntity<?> groups() {
+        log.debug("getting groups");
+        List<Group> groups = groupService.getGroups();
         List<GroupDto> groupDtos = new ArrayList<>();
         groups.forEach(chatGroup -> groupDtos.add(groupMapper.toGroupDto(chatGroup)));
         log.info("chat groups found :{}", groupDtos.size());
         return ResponseEntity.ok(ChatGroupResponse.builder().count(groupDtos.size()).groupDtos(groupDtos).build());
     }
 
-    @Operation(summary = "Get a chat group by its id")
+    @Operation(summary = "Get a group by its id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the chat group",
+            @ApiResponse(responseCode = "200", description = "Found the group",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = GroupDto.class))}),
             @ApiResponse(responseCode = "400", description = "Invalid id supplied",
                     content = @Content),
-            @ApiResponse(responseCode = "404", description = "Chat group not found",
+            @ApiResponse(responseCode = "404", description = "Group not found",
                     content = @Content)})
-    @GetMapping("/{chatGroupId}")
-    private ResponseEntity<?> chatGroup(@Parameter(description = "id of group to be searched")
-                                            @PathVariable Long chatGroupId) {
-        log.debug("getting ChatGroup by Id: {}", chatGroupId);
-        Group group = groupService.getChatGroup(chatGroupId);
+    @GetMapping("/{groupId}")
+    private ResponseEntity<?> group(@Parameter(description = "id of group to be searched") @PathVariable Long groupId) {
+        log.debug("getting Group by Id: {}", groupId);
+        Group group = groupService.getGroup(groupId);
         return ResponseEntity.ok(groupMapper.toGroupDto(group));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    private ResponseEntity<?> addChatGroup(@RequestBody ChatGroupRequest chatGroupRequest) {
-        log.debug("adding ChatGroup: {}", chatGroupRequest);
-        Group group = groupService.addChatGroup(chatGroupRequest);
+    private ResponseEntity<?> chatGroup(@RequestBody GroupRequest groupRequest) {
+        log.debug("adding ChatGroup: {}", groupRequest);
+        Group group = groupService.addGroup(groupRequest);
         return ResponseEntity.ok(groupMapper.toGroupDto(group));
     }
 
-    @PutMapping("/{chatGroupId}")
+    @PutMapping("/{groupId}")
     @ResponseStatus(HttpStatus.OK)
-    private ResponseEntity<?> updateChatGroup(@PathVariable Long chatGroupId,
-                                              @RequestBody ChatGroupRequest chatGroupRequest) {
-        log.debug("updating ChatGroup: {}", chatGroupRequest);
-        if(!chatGroupId.equals(chatGroupRequest.getChatGroupId())) {
+    private ResponseEntity<?> updateChatGroup(@Parameter(description = "id of group to be updated") @PathVariable Long groupId,
+                                              @RequestBody GroupRequest groupRequest) {
+        log.debug("updating Group: {}", groupRequest);
+        if(!groupId.equals(groupRequest.getGroupId())) {
             throw new InvalidDataUpdateException("Object in request in not matched with required in path");
         }
-        groupService.updateChatGroup(chatGroupRequest);
+        groupService.updateGroup(groupRequest);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{chatGroupId}")
+    @DeleteMapping("/{groupId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    private ResponseEntity<?> updateChatGroup(@PathVariable Long chatGroupId) {
-        log.debug("Deleting chat group by id: {}", chatGroupId);
+    private ResponseEntity<?> updateGroup(@Parameter(description = "id of group to be deleted") @PathVariable Long groupId) {
+        log.debug("Deleting group by id: {}", groupId);
 
-        groupService.deleteChatGroup(chatGroupId);
+        groupService.deleteGroup(groupId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

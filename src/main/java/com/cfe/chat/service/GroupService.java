@@ -1,6 +1,6 @@
 package com.cfe.chat.service;
 
-import com.cfe.chat.controller.request.ChatGroupRequest;
+import com.cfe.chat.controller.request.GroupRequest;
 import com.cfe.chat.domain.Group;
 import com.cfe.chat.exception.DataNotFoundException;
 import com.cfe.chat.repository.GroupRepository;
@@ -17,18 +17,18 @@ public class GroupService {
 
     private final GroupRepository groupRepository;
 
-    public Group getChatGroup(Long chatGroupId) {
-        log.debug("Getting Chat Group by Id: {}", chatGroupId);
+    public Group getGroup(Long groupId) {
+        log.debug("Getting group by Id: {}", groupId);
 
-        Group group = groupRepository.findById(chatGroupId).orElseThrow(
-                () -> new DataNotFoundException("Chat group not found with id: " + chatGroupId));
+        Group group = groupRepository.findById(groupId).orElseThrow(
+                () -> new DataNotFoundException("Group not found with id: " + groupId));
 
-        log.info("Chat Group: {}", group);
+        log.info("Group: {}", group);
         return group;
     }
 
-    public List<Group> getChatGroups() {
-        log.debug("Getting Chat Groups");
+    public List<Group> getGroups() {
+        log.debug("Getting groups");
 
         List<Group> groups = groupRepository.findAll();
 
@@ -36,11 +36,11 @@ public class GroupService {
         return groups;
     }
 
-    public Group addChatGroup(ChatGroupRequest chatGroupRequest) {
-        log.debug("Saving Chat Group: {}", chatGroupRequest);
+    public Group addGroup(GroupRequest groupRequest) {
+        log.debug("Saving group: {}", groupRequest);
 
         Group group = Group.builder()
-                .name(chatGroupRequest.getName())
+                .name(groupRequest.getName())
                 .active(Boolean.TRUE)
                 .build();
 
@@ -50,25 +50,24 @@ public class GroupService {
         return group;
     }
 
-    public void updateChatGroup(ChatGroupRequest chatGroupRequest) {
-        log.debug("Updating Chat Group: {}", chatGroupRequest);
+    public void updateGroup(GroupRequest groupRequest) {
+        log.debug("Updating Chat Group: {}", groupRequest);
 
-        Group group = getChatGroup(chatGroupRequest.getChatGroupId());
+        Group group = getGroup(groupRequest.getGroupId());
 
-        if (chatGroupRequest.getName() != null || !chatGroupRequest.getName().isEmpty()) {
-            group.setName(chatGroupRequest.getName());
+        if (groupRequest.getName() != null || !groupRequest.getName().isEmpty()) {
+            group.setName(groupRequest.getName());
         }
         groupRepository.save(group);
-        log.info("Chat Group updated: {}", group);
+        log.info("Group updated: {}", group);
     }
 
-    public void deleteChatGroup(Long chatGroupId) {
+    public void deleteGroup(Long chatGroupId) {
         log.debug("Deleting Chat Group: {}", chatGroupId);
 
-        Group group = getChatGroup(chatGroupId);
+        Group group = getGroup(chatGroupId);
 
         groupRepository.delete(group);
-        log.info("Chat Group deleted: {}", group);
-
+        log.info("Group deleted: {}", group);
     }
 }

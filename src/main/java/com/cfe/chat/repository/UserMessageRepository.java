@@ -15,7 +15,7 @@ public interface UserMessageRepository extends JpaRepository<UserMessage, Long> 
     @Query("SELECT new com.cfe.chat.domain.custom.UserMessageHistory(" +
             "m.id, m.messageBody, m.sender, um.receiver, um.messageStatus, um.updatedAt) " +
             "FROM Message m inner join UserMessage um ON m.id = um.message.id " +
-            "WHERE m.sender IN (:sender, :receiver) AND um.receiver IN (:sender, :receiver) " +
+            "WHERE (m.sender = :sender AND um.receiver = :receiver) OR (m.sender = :receiver AND um.receiver = :sender) " +
             "AND m.createAt > :dateTime")
     List<UserMessageHistory> findUserMessageHistory(User sender, User receiver, OffsetDateTime dateTime);
 

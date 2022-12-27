@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatGroupRequest {
+public class GroupRequest {
 
-    private Long chatGroupId;
+    private Long groupId;
     private String name;
     private boolean active;
 }

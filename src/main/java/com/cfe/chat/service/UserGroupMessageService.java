@@ -44,8 +44,8 @@ public class UserGroupMessageService {
         return userGroupMessage;
     }
 
-    public List<GroupMessageHistory> messagesHistoryByGroupForUser(Long groupId, Long userId) {
-        log.debug("finding userGroupMessages history by group: {} for user: {}", groupId, userId);
+    public List<GroupMessageHistory> messagesHistoryByGroup(Long groupId) {
+        log.debug("finding userGroupMessages history by group: {}", groupId);
         OffsetDateTime dateTime = OffsetDateTime.now().minusDays(chatServerProperties.getMessageHistoryDays());
         List<UserGroup> userGroups = userGroupService.findUsersInGroup(groupId);
         List<GroupMessageHistory> groupMessageHistories =

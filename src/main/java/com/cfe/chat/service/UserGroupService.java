@@ -1,7 +1,7 @@
 package com.cfe.chat.service;
 
 import com.cfe.chat.controller.request.AddGroupAndUserGroupsRequest;
-import com.cfe.chat.controller.request.ChatGroupRequest;
+import com.cfe.chat.controller.request.GroupRequest;
 import com.cfe.chat.controller.request.UserGroupRequest;
 import com.cfe.chat.domain.Group;
 import com.cfe.chat.domain.UserGroup;
@@ -43,7 +43,7 @@ public class UserGroupService {
         log.debug("adding user group details: {}", userGroupRequest);
         UserGroup userGroup = UserGroup.builder()
                 .user(userService.getUser(userGroupRequest.getUserId()))
-                .group(groupService.getChatGroup(userGroupRequest.getGroupId()))
+                .group(groupService.getGroup(userGroupRequest.getGroupId()))
                 .build();
         userGroupRepository.save(userGroup);
         log.info("User group saved: {}", userGroup.getId());
@@ -55,7 +55,7 @@ public class UserGroupService {
         UserGroup userGroup = getUserGroup(userGroupRequest.getUserGroupId());
 
         userGroup.setUser(userService.getUser(userGroupRequest.getUserId()));
-        userGroup.setGroup(groupService.getChatGroup(userGroupRequest.getGroupId()));
+        userGroup.setGroup(groupService.getGroup(userGroupRequest.getGroupId()));
 
         userGroupRepository.save(userGroup);
         log.info("User group updated: {}", userGroup.getId());
@@ -70,7 +70,7 @@ public class UserGroupService {
 
     public List<UserGroup> findUsersInGroup(Long groupId) {
         log.debug("finding users in group by group id: {}", groupId);
-        List<UserGroup> userGroups = userGroupRepository.findUserGroup(groupService.getChatGroup(groupId));
+        List<UserGroup> userGroups = userGroupRepository.findUserGroup(groupService.getGroup(groupId));
         log.info("{} users found by group: {}", userGroups.size(), groupId);
         return userGroups;
     }
@@ -95,14 +95,14 @@ public class UserGroupService {
         log.debug("add group and userGroups request: {}", addGroupAndUserGroupsRequest);
         Group group;
         if (groupId == null || groupId == 0) {
-            group = groupService.addChatGroup(
-                    ChatGroupRequest.builder()
+            group = groupService.addGroup(
+                    GroupRequest.builder()
                             .name(addGroupAndUserGroupsRequest.getName())
                             .active(Boolean.TRUE)
                             .build()
             );
         } else {
-            group = groupService.getChatGroup(groupId);
+            group = groupService.getGroup(groupId);
         }
         if (!CollectionUtils.isEmpty(addGroupAndUserGroupsRequest.getUserIds())) {
             List<Long> userIds = new ArrayList<>();
