@@ -16,7 +16,7 @@ public interface UserMessageRepository extends JpaRepository<UserMessage, Long> 
             "m.id, m.messageBody, m.sender, um.receiver, um.messageStatus, um.updatedAt) " +
             "FROM Message m inner join UserMessage um ON m.id = um.message.id " +
             "WHERE (m.sender = :sender AND um.receiver = :receiver) OR (m.sender = :receiver AND um.receiver = :sender) " +
-            "AND m.createAt > :dateTime")
+            "AND m.createdAt > :dateTime")
     List<UserMessageHistory> findUserMessageHistory(User sender, User receiver, OffsetDateTime dateTime);
 
     @Query("SELECT um FROM UserMessage um WHERE um.id IN " +

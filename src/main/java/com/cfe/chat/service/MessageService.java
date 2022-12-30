@@ -78,9 +78,9 @@ public class MessageService {
         }
     }
 
-    public List<Message> findByCreateAt(ZonedDateTime createAt) {
-        log.debug("finding message by create date: {}", createAt);
-        List<Message> messages = messageRepository.findByCreateAtBefore(createAt);
+    public List<Message> findByCreatedAt(ZonedDateTime createdAt) {
+        log.debug("finding message by create date: {}", createdAt);
+        List<Message> messages = messageRepository.findByCreatedAtBefore(createdAt);
         log.debug("found messages: {}", messages.size());
         return messages;
     }

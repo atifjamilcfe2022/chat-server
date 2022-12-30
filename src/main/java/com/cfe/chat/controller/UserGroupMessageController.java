@@ -38,6 +38,7 @@ public class UserGroupMessageController {
                             .id(groupMessageHistory.getId())
                             .messageBody(groupMessageHistory.getMessageBody())
                             .sender(userMapper.toUserDto(groupMessageHistory.getSender()))
+                            .createdAt(groupMessageHistory.getCreatedAt())
                             .build();
             groupMessageHistoryDtos.add(groupMessageHistoryDto);
         });

@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-    List<Message> findByCreateAtBefore(ZonedDateTime createAt);
+    List<Message> findByCreatedAtBefore(ZonedDateTime createdAt);
 }

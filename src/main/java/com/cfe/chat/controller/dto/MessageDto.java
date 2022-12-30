@@ -18,6 +18,5 @@ public class MessageDto {
     private String messageBody;
     private UserDto sender;
     private boolean active;
-    @JsonProperty("createdAt")
-    private OffsetDateTime createAt;
+    private OffsetDateTime createdAt;
 }

@@ -66,7 +66,7 @@ public class UserGroupMessageService {
     public void deleteOldGroupMessage() {
         log.debug("Cron job execution started for deleting group messages");
         long startTime = System.currentTimeMillis() / 1000;
-        List<Message> messages = messageService.findByCreateAt(ZonedDateTime.now().minusDays(chatServerProperties.getMessageHistoryDays()));
+        List<Message> messages = messageService.findByCreatedAt(ZonedDateTime.now().minusDays(chatServerProperties.getMessageHistoryDays()));
         if(!messages.isEmpty()) {
             List<UserGroupMessage> userGroupMessages = userGroupMessageRepository.findByMessageIn(messages);
             if(!userGroupMessages.isEmpty()){

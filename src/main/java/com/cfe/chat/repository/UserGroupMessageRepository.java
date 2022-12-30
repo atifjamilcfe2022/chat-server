@@ -16,11 +16,11 @@ public interface UserGroupMessageRepository extends JpaRepository<UserGroupMessa
 //    @Query("SELECT ugm FROM UserGroupMessage ugm where ugm.userGroup IN (:userGroups) AND ugm.createdAt = :dateTime")
 //    List<GroupMessageHistory> findUserMessageHistory(List<UserGroup> userGroups, OffsetDateTime dateTime);
 
-    @Query("SELECT new com.cfe.chat.domain.custom.GroupMessageHistory(m.id, m.messageBody, m.sender) " +
+    @Query("SELECT new com.cfe.chat.domain.custom.GroupMessageHistory(m.id, m.messageBody, m.sender, m.createdAt) " +
             "FROM Message m inner join UserGroupMessage ugm ON m.id = ugm.message.id " +
             "where ugm.userGroup IN (:userGroups) " +
-            "AND m.createAt > :dateTime " +
-            "group by m.messageBody")
+            "AND m.createdAt > :dateTime " +
+            "group by m.id")
     List<GroupMessageHistory> findUserMessageHistory(List<UserGroup> userGroups, OffsetDateTime dateTime);
 
     List<UserGroupMessage> findByMessageIn(List<Message> messages);

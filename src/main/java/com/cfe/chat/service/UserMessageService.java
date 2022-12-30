@@ -115,7 +115,7 @@ public class UserMessageService {
     public void deleteOldUserMessage() {
         log.debug("Cron job execution started for deleting user messages");
         long startTime = System.currentTimeMillis() / 1000;
-        List<Message> messages = messageService.findByCreateAt(ZonedDateTime.now().minusDays(chatServerProperties.getMessageHistoryDays()));
+        List<Message> messages = messageService.findByCreatedAt(ZonedDateTime.now().minusDays(chatServerProperties.getMessageHistoryDays()));
         if(!messages.isEmpty()) {
             List<UserMessage> userMessages = userMessageRepository.findByMessageIn(messages);
             if(!userMessages.isEmpty()){

@@ -30,7 +30,7 @@ public class Message implements Serializable {
     private String messageBody;
 
     @CreationTimestamp
-    private OffsetDateTime createAt;
+    private OffsetDateTime createdAt;
 
     @UpdateTimestamp
     private OffsetDateTime updatedAt;
