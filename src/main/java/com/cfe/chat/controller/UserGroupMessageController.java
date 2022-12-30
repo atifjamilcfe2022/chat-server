@@ -53,4 +53,20 @@ public class UserGroupMessageController {
         log.info("Updating messageStatus of a userGroup message");
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{userGroupMessageId}")
+    private ResponseEntity<?> deleteUserGroupMessage(@PathVariable Long userGroupMessageId) {
+        log.debug("deleting userGroupMessage and all parent");
+        userGroupMessageService.deleteUserGroupMessage(userGroupMessageId);
+        log.info("deleted userGroupMessage");
+        return ResponseEntity.noContent().build();
+    }
+//
+//    @PutMapping("/{userGroupMessageId}/inactive")
+//    private ResponseEntity<?> inactiveUserGroupMessage(@PathVariable Long userGroupMessageId) {
+//        log.debug("inactive userGroupMessage and all parent");
+//        userGroupMessageService.inactiveUserGroupMessage(userGroupMessageId);
+//        log.info("inactive userGroupMessage");
+//        return ResponseEntity.ok().build();
+//    }
 }

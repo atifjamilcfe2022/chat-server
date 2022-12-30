@@ -10,10 +10,12 @@ import com.cfe.chat.repository.UserGroupRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -91,6 +93,7 @@ public class UserGroupService {
 //        return userGroup;
 //    }
 
+    @Transactional
     public Group addGroupAndUserGroups(Long groupId, AddGroupAndUserGroupsRequest addGroupAndUserGroupsRequest) {
         log.debug("add group and userGroups request: {}", addGroupAndUserGroupsRequest);
         Group group;
@@ -106,7 +109,13 @@ public class UserGroupService {
         }
         if (!CollectionUtils.isEmpty(addGroupAndUserGroupsRequest.getUserIds())) {
             List<Long> userIds = new ArrayList<>();
-            findUsersInGroup(group.getId()).forEach(userGroup -> userIds.add(userGroup.getUser().getId()));
+            findUsersInGroup(group.getId()).forEach(userGroup -> {
+                userIds.add(userGroup.getUser().getId());
+                if(addGroupAndUserGroupsRequest.getUserIds().contains(userGroup.getUser().getId())){
+                    userGroup.setActive(Boolean.TRUE);
+                    userGroupRepository.save(userGroup);
+                }
+            });
             addGroupAndUserGroupsRequest.getUserIds().forEach(userId -> {
                 if (!userIds.contains(userId)) {
                     UserGroup userGroup = UserGroup.builder()
@@ -116,11 +125,32 @@ public class UserGroupService {
                             .build();
                     userGroupRepository.save(userGroup);
                 } else {
-                    log.warn("User with id: {} is already presend in the group: {}", userId, groupId);
+                    log.warn("User with id: {} is already present in the group: {}", userId, groupId);
                 }
             });
         }
         log.info("group and userGroup information saved successfully");
         return group;
+    }
+
+    public void inactiveUserFromGroup(Long groupId, Long userId) {
+        log.debug("marking user: {} in group: {} inactive", userId, groupId);
+        Optional<UserGroup> userGroupOptional = userGroupRepository.findByUserGroup(
+                userService.getUser(userId), groupService.getGroup(groupId));
+        if (userGroupOptional.isEmpty()) {
+            throw new DataNotFoundException("User: " + userId + " is not found in group: " + groupId);
+        }
+        UserGroup userGroup = userGroupOptional.get();
+        userGroup.setActive(Boolean.FALSE);
+        userGroupRepository.save(userGroup);
+        log.info("user: {} is successfully marked inactive in Group: {}", userId, groupId);
+    }
+
+    public void inactiveUserGroup(Long userGroupId) {
+        log.debug("marking userGroup: {} inactive", userGroupId);
+        UserGroup userGroup = getUserGroup(userGroupId);
+        userGroup.setActive(Boolean.FALSE);
+        userGroupRepository.save(userGroup);
+        log.info("userGroup {} is successfully marked inactive", userGroupId);
     }
 }

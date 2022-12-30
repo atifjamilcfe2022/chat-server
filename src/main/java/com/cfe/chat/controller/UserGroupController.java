@@ -105,4 +105,22 @@ public class UserGroupController {
         Group group = userGroupService.addGroupAndUserGroups(groupId, addGroupAndUserGroupsRequest);
         return ResponseEntity.ok(AddGroupAndUserGroupsResponse.builder().groupId(group.getId()).build());
     }
+
+    @PutMapping("/exit/groups/{groupId}/users/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    private ResponseEntity<?> inactiveUserFromGroup(@PathVariable Long groupId, @PathVariable Long userId) {
+        log.debug("Deleting user: {} from group: {}", userId, groupId);
+
+        userGroupService.inactiveUserFromGroup(groupId, userId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PutMapping("/{userGroupId}/exit")
+    @ResponseStatus(HttpStatus.OK)
+    private ResponseEntity<?> inactiveUserGroup(@PathVariable Long userGroupId) {
+        log.debug("Inactivating userGroup: {}", userGroupId);
+
+        userGroupService.inactiveUserGroup(userGroupId);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

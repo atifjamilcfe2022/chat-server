@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
@@ -81,4 +82,17 @@ public class UserGroupMessageService {
         long endTime = System.currentTimeMillis() / 1000;
         log.debug("Cron job execution ended. Total time taken: {} ", endTime - startTime);
     }
+
+    public void deleteUserGroupMessage(Long userGroupMessageId) {
+        UserGroupMessage userGroupMessage = getUserGroupMessage(userGroupMessageId);
+        userGroupMessageRepository.delete(userGroupMessage);
+    }
+
+//    @Transactional
+//    public void inactiveUserGroupMessage(Long userGroupMessageId) {
+//        UserGroupMessage userGroupMessage = getUserGroupMessage(userGroupMessageId);
+//        userGroupMessage.setActive(Boolean.FALSE);
+//        userGroupMessageRepository.save(userGroupMessage);
+//        userGroupService.getUserGroup(userGroupMessage.get)
+//    }
 }
