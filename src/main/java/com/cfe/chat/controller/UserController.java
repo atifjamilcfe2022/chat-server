@@ -29,6 +29,11 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
+    @Operation(summary = "Get all users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users found",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponse.class))})})
     @GetMapping
     private ResponseEntity<?> users() {
         log.debug("getting users");
@@ -36,12 +41,12 @@ public class UserController {
         List<UserDto> userDtos = new ArrayList<>();
         users.forEach(user -> userDtos.add(userMapper.toUserDto(user)));
         log.info("users found :{}", userDtos.size());
-        return ResponseEntity.ok(UserResponse.builder().count(userDtos.size()).userDtos(userDtos).build());
+        return ResponseEntity.ok(UserResponse.builder().count(userDtos.size()).users(userDtos).build());
     }
 
     @Operation(summary = "Get a user by id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found user",
+            @ApiResponse(responseCode = "200", description = "User Found",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = UserDto.class))}),
             @ApiResponse(responseCode = "400", description = "Invalid id",

@@ -1,22 +1,18 @@
-package com.cfe.chat.controller.dto;
+package com.cfe.chat.controller.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupDto {
+public class AddGroupRequest {
 
-    private Long id;
     private String name;
-    private boolean active;
-    private OffsetDateTime createdAt;
-    private List<UserDto> users;
+    private List<Long> userIds;
 }

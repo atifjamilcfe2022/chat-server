@@ -24,4 +24,7 @@ public interface UserGroupMessageRepository extends JpaRepository<UserGroupMessa
     List<GroupMessageHistory> findUserMessageHistory(List<UserGroup> userGroups, OffsetDateTime dateTime);
 
     List<UserGroupMessage> findByMessageIn(List<Message> messages);
+
+    List<UserGroupMessage> findByUserGroupIn(List<UserGroup> userGroups);
+
 }

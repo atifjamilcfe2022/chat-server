@@ -12,8 +12,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatGroupResponse {
+public class GroupResponse {
 
     private int count;
-    private List<GroupDto> groupDtos;
+    private List<GroupDto> groups;
 }

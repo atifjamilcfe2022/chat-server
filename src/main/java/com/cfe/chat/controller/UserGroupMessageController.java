@@ -15,52 +15,52 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Slf4j
-@RestController
-@AllArgsConstructor
-@RequestMapping("/userGroupMessages")
-@CrossOrigin(origins = "*")
+//@Slf4j
+//@RestController
+//@AllArgsConstructor
+//@RequestMapping("/userGroupMessages")
+//@CrossOrigin(origins = "*")
 public class UserGroupMessageController {
 
-    private final UserGroupMessageService userGroupMessageService;
-    private final UserMapper userMapper;
+//    private final UserGroupMessageService userGroupMessageService;
+//    private final UserMapper userMapper;
 
-    @GetMapping("/groups/{groupId}/history")
-    private ResponseEntity<?> messagesHistoryByGroup(@PathVariable Long groupId) {
-        log.debug("Getting messages history of a group");
-        List<GroupMessageHistory> groupMessageHistories = userGroupMessageService.messagesHistoryByGroup(groupId);
-        log.info("group messages of user found :{}", groupMessageHistories.size());
+//    @GetMapping("/groups/{groupId}/history")
+//    private ResponseEntity<?> messagesHistoryByGroup(@PathVariable Long groupId) {
+//        log.debug("Getting messages history of a group");
+//        List<GroupMessageHistory> groupMessageHistories = userGroupMessageService.messagesHistoryByGroup(groupId);
+//        log.info("group messages of user found :{}", groupMessageHistories.size());
+//
+//        List<GroupMessageHistoryDto> groupMessageHistoryDtos = new ArrayList<>();
+//        groupMessageHistories.forEach(groupMessageHistory -> {
+//            GroupMessageHistoryDto groupMessageHistoryDto =
+//                    GroupMessageHistoryDto.builder()
+//                            .id(groupMessageHistory.getId())
+//                            .messageBody(groupMessageHistory.getMessageBody())
+//                            .sender(userMapper.toUserDto(groupMessageHistory.getSender()))
+//                            .createdAt(groupMessageHistory.getCreatedAt())
+//                            .build();
+//            groupMessageHistoryDtos.add(groupMessageHistoryDto);
+//        });
+//        return ResponseEntity.ok(GroupMessageHistoryResponse.builder().count(groupMessageHistories.size()).data(groupMessageHistoryDtos).build());
+//    }
 
-        List<GroupMessageHistoryDto> groupMessageHistoryDtos = new ArrayList<>();
-        groupMessageHistories.forEach(groupMessageHistory -> {
-            GroupMessageHistoryDto groupMessageHistoryDto =
-                    GroupMessageHistoryDto.builder()
-                            .id(groupMessageHistory.getId())
-                            .messageBody(groupMessageHistory.getMessageBody())
-                            .sender(userMapper.toUserDto(groupMessageHistory.getSender()))
-                            .createdAt(groupMessageHistory.getCreatedAt())
-                            .build();
-            groupMessageHistoryDtos.add(groupMessageHistoryDto);
-        });
-        return ResponseEntity.ok(GroupMessageHistoryResponse.builder().count(groupMessageHistories.size()).data(groupMessageHistoryDtos).build());
-    }
+//    @PutMapping("/{userGroupMessageId}/status/{messageStatus}")
+//    private ResponseEntity<?> updateStatusOfUserGroupMessage(@PathVariable Long userGroupMessageId,
+//                                                                        @PathVariable MessageStatus messageStatus) {
+//        log.debug("Updating messageStatus of a userGroup message");
+//        userGroupMessageService.updateStatusOfUserGroupMessage(userGroupMessageId, messageStatus);
+//        log.info("Updating messageStatus of a userGroup message");
+//        return ResponseEntity.noContent().build();
+//    }
 
-    @PutMapping("/{userGroupMessageId}/status/{messageStatus}")
-    private ResponseEntity<?> updateStatusOfUserGroupMessage(@PathVariable Long userGroupMessageId,
-                                                                        @PathVariable MessageStatus messageStatus) {
-        log.debug("Updating messageStatus of a userGroup message");
-        userGroupMessageService.updateStatusOfUserGroupMessage(userGroupMessageId, messageStatus);
-        log.info("Updating messageStatus of a userGroup message");
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/{userGroupMessageId}")
-    private ResponseEntity<?> deleteUserGroupMessage(@PathVariable Long userGroupMessageId) {
-        log.debug("deleting userGroupMessage and all parent");
-        userGroupMessageService.deleteUserGroupMessage(userGroupMessageId);
-        log.info("deleted userGroupMessage");
-        return ResponseEntity.noContent().build();
-    }
+//    @DeleteMapping("/{userGroupMessageId}")
+//    private ResponseEntity<?> deleteUserGroupMessage(@PathVariable Long userGroupMessageId) {
+//        log.debug("deleting userGroupMessage and all parent");
+//        userGroupMessageService.deleteUserGroupMessage(userGroupMessageId);
+//        log.info("deleted userGroupMessage");
+//        return ResponseEntity.noContent().build();
+//    }
 //
 //    @PutMapping("/{userGroupMessageId}/inactive")
 //    private ResponseEntity<?> inactiveUserGroupMessage(@PathVariable Long userGroupMessageId) {

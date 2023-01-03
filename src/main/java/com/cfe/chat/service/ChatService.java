@@ -4,10 +4,7 @@ import com.cfe.chat.config.properties.ChatServerProperties;
 import com.cfe.chat.controller.request.ChatMessageRequest;
 import com.cfe.chat.controller.request.MessageRequest;
 import com.cfe.chat.controller.response.ChatMessageResponse;
-import com.cfe.chat.domain.Message;
-import com.cfe.chat.domain.UserGroup;
-import com.cfe.chat.domain.UserGroupMessage;
-import com.cfe.chat.domain.UserMessage;
+import com.cfe.chat.domain.*;
 import com.cfe.chat.dto.ActiveInfo;
 import com.cfe.chat.enums.MessageStatus;
 import com.cfe.chat.exception.InvalidDataUpdateException;
@@ -32,6 +29,8 @@ public class ChatService {
 
     private final ChatServerProperties chatServerProperties;
     private final UserService userService;
+
+    private final GroupService groupService;
     private final MessageService messageService;
     private final UserMessageService userMessageService;
     private final UserGroupMessageService userGroupMessageService;
@@ -94,13 +93,15 @@ public class ChatService {
 
             simpMessagingTemplate.convertAndSendToUser(String.valueOf(chatMessageRequest.getReceiverId()), "/private", chatMessageRequest);
         } else if (chatMessageRequest.getGroupId() != null) {
-            List<UserGroup> userGroups = userGroupService.findUsersInGroup(chatMessageRequest.getGroupId());
-            if(!userGroups.isEmpty()) {
-                for(UserGroup userGroup : userGroups){
-                    if(!userGroup.getUser().getId().equals(chatMessageRequest.getSenderId())){
+            Group group = groupService.getGroup(chatMessageRequest.getGroupId());
+            List<User> users = userGroupService.findUsersInGroup(group);
+            if(!users.isEmpty()) {
+                for(User user : users){
+                    if(!user.getId().equals(chatMessageRequest.getSenderId())){
+                        UserGroup userGroup = userGroupService.findByUserGroup(user, group);
                         UserGroupMessage userGroupMessage = userGroupMessageService.addUserGroupMessage(userGroup, message);
                         chatMessageRequest.setUserGroupMessageId(userGroupMessage.getId());
-                        simpMessagingTemplate.convertAndSendToUser(String.valueOf(userGroup.getUser().getId()), "/private", chatMessageRequest);
+                        simpMessagingTemplate.convertAndSendToUser(String.valueOf(user.getId()), "/private", chatMessageRequest);
                     }
                 }
             }

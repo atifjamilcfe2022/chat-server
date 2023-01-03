@@ -1,12 +1,17 @@
 package com.cfe.chat.service;
 
+import com.cfe.chat.config.properties.ChatServerProperties;
 import com.cfe.chat.controller.request.MessageRequest;
 import com.cfe.chat.domain.Message;
+import com.cfe.chat.domain.UserMessage;
+import com.cfe.chat.domain.custom.UserMessageHistory;
 import com.cfe.chat.exception.DataNotFoundException;
 import com.cfe.chat.repository.MessageRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -16,7 +21,9 @@ import java.util.List;
 @AllArgsConstructor
 public class MessageService {
 
+    private final ChatServerProperties chatServerProperties;
     private final MessageRepository messageRepository;
+    private final UserMessageService userMessageService;
 
     private UserService userService;
 
@@ -83,5 +90,33 @@ public class MessageService {
         List<Message> messages = messageRepository.findByCreatedAtBefore(createdAt);
         log.debug("found messages: {}", messages.size());
         return messages;
+    }
+
+    public List<UserMessage> getUsersToWhomSendMessagesRecently(Long userId) {
+        return userMessageService.getUsersWithChatMadeRecently(userService.getUser(userId));
+    }
+
+    public List<UserMessageHistory> userMessagesHistory(Long senderId, Long receiverId) {
+        return userMessageService.userMessagesHistory(senderId, receiverId);
+    }
+
+    @Scheduled(cron = "${cron.expression.user}")
+    public void deleteOldUserMessage() {
+        log.debug("Cron job execution started for deleting user messages");
+        long startTime = System.currentTimeMillis() / 1000;
+        List<Message> messages = findByCreatedAt(ZonedDateTime.now().minusDays(chatServerProperties.getMessageHistoryDays()));
+        if(!messages.isEmpty()) {
+            List<UserMessage> userMessages = userMessageService.findByMessageIn(messages);
+            if(!userMessages.isEmpty()){
+                userMessages.forEach(userMessage -> {
+                    log.debug("deleting userMessage: {}", userMessage);
+                    userMessageService.delete(userMessage);
+                    log.info("userMessage deleted successfully");
+                });
+            }
+            messages.forEach(this::deleteMessage);
+        }
+        long endTime = System.currentTimeMillis() / 1000;
+        log.debug("Cron job execution ended. Total time taken: {} ", endTime - startTime);
     }
 }
