@@ -4,12 +4,15 @@ import com.cfe.chat.config.properties.ChatServerProperties;
 import com.cfe.chat.controller.dto.GroupDto;
 import com.cfe.chat.controller.dto.GroupMessageHistoryDto;
 import com.cfe.chat.controller.dto.UserDto;
+import com.cfe.chat.controller.dto.UserGroupDto;
 import com.cfe.chat.controller.mapper.GroupMapper;
+import com.cfe.chat.controller.mapper.UserGroupMapper;
 import com.cfe.chat.controller.mapper.UserMapper;
 import com.cfe.chat.controller.request.AddGroupRequest;
 import com.cfe.chat.controller.request.UpdateGroupRequest;
 import com.cfe.chat.controller.response.GroupMessageHistoryResponse;
 import com.cfe.chat.controller.response.GroupResponse;
+import com.cfe.chat.controller.response.UserGroupResponse;
 import com.cfe.chat.domain.*;
 import com.cfe.chat.domain.custom.GroupMessageHistory;
 import com.cfe.chat.exception.DataNotFoundException;
@@ -41,6 +44,7 @@ public class GroupService {
     private final MessageService messageService;
 
     private final GroupMapper groupMapper;
+    private final UserGroupMapper userGroupMapper;
     private final UserMapper userMapper;
 
     public Group getGroup(Long groupId) {
@@ -56,7 +60,7 @@ public class GroupService {
 
         List<User> users = userGroupService.findUsersInGroup(group);
         List<UserDto> userList = new ArrayList<>();
-        if(!users.isEmpty()) {
+        if (!users.isEmpty()) {
             users.forEach(user -> {
                 UserDto userDto = userMapper.toUserDto(user);
                 userList.add(userDto);
@@ -72,11 +76,11 @@ public class GroupService {
         List<Group> groups = groupRepository.findAll();
         log.info("{} groups found", groups.size());
         List<GroupDto> groupList = new ArrayList<>();
-        if(!groups.isEmpty()) {
+        if (!groups.isEmpty()) {
             groups.forEach(group -> {
                 List<User> users = userGroupService.findUsersInGroup(group);
                 List<UserDto> userList = new ArrayList<>();
-                if(!users.isEmpty()){
+                if (!users.isEmpty()) {
                     users.forEach(user -> {
                         UserDto userDto = userMapper.toUserDto(user);
                         userList.add(userDto);
@@ -101,7 +105,7 @@ public class GroupService {
         groupRepository.save(group);
         log.info("Group created successfully: {}", group);
 
-        if(group.getId() != null && group.getId() > 0){
+        if (group.getId() != null && group.getId() > 0) {
             log.info("saving group users");
             userGroupService.addUsersInGroup(group, addGroupRequest.getUserIds());
         }
@@ -134,17 +138,30 @@ public class GroupService {
         log.info("Group deleted: {}", group);
     }
 
+    @Transactional
     public void deletingUserFromGroup(Long groupId, Long userId) {
         log.debug("Deleting Group: {}", groupId);
         Group group = getGroup(groupId);
-        userGroupService.deleteUsersFromGroup(group, userId);
+        boolean isGroupNeedsToDelete = userGroupService.deleteUsersFromGroup(group, userId);
+        if (isGroupNeedsToDelete) {
+            groupRepository.delete(group);
+        }
     }
 
     public GroupResponse getGroupDetailsByUser(Long userId) {
         List<Group> groups = userGroupService.findGroupsOfUser(userId);
         List<GroupDto> groupList = new ArrayList<>();
-        if(!groups.isEmpty()) {
-            groups.forEach(group -> groupList.add(groupMapper.toGroupDto(group)));
+        if (!groups.isEmpty()) {
+            groups.forEach(group -> {
+                GroupDto groupDto = groupMapper.toGroupDto(group);
+                List<User> users = userGroupService.findUsersInGroup(group);
+                List<UserDto> userDtoList = new ArrayList<>();
+                if (!users.isEmpty()) {
+                    users.forEach(user -> userDtoList.add(userMapper.toUserDto(user)));
+                }
+                groupDto.setUsers(userDtoList);
+                groupList.add(groupDto);
+            });
         }
         return GroupResponse.builder().count(groups.size()).groups(groupList).build();
     }

@@ -15,5 +15,5 @@ import java.util.List;
 public class UserGroupResponse {
 
     private int count;
-    List<UserGroupDto> userGroupDtos;
+    List<UserGroupDto> userGroups;
 }

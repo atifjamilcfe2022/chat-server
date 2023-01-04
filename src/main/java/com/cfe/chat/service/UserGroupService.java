@@ -212,7 +212,7 @@ public class UserGroupService {
         }
     }
 
-    public void deleteUsersFromGroup(Group group, Long userId) {
+    public boolean deleteUsersFromGroup(Group group, Long userId) {
         log.debug("deleting user: {} from group: {}", userId, group);
         userGroupRepository.findByGroupAndUser(group, userService.getUser(userId))
                 .ifPresent(userGroup -> {
@@ -220,6 +220,7 @@ public class UserGroupService {
                     userGroupRepository.delete(userGroup);
                     log.info("userGroup deleted successfully");
                 });
+        return findUsersInGroup(group).isEmpty();
     }
 
     public UserGroup findByUserGroup(User user, Group group) {
