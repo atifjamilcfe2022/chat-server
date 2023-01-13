@@ -1,5 +1,6 @@
 package com.cfe.chat.controller;
 
+import com.cfe.chat.controller.dto.LastChatMessageDto;
 import com.cfe.chat.controller.dto.MessageDto;
 import com.cfe.chat.controller.dto.UserMessageDto;
 import com.cfe.chat.controller.dto.UserMessageHistoryDto;
@@ -7,12 +8,14 @@ import com.cfe.chat.controller.mapper.MessageMapper;
 import com.cfe.chat.controller.mapper.UserMapper;
 import com.cfe.chat.controller.mapper.UserMessageMapper;
 import com.cfe.chat.controller.request.MessageRequest;
+import com.cfe.chat.controller.response.LastMessagesWithUsersResponse;
 import com.cfe.chat.controller.response.MessageResponse;
 import com.cfe.chat.controller.response.UserMessageHistoryResponse;
 import com.cfe.chat.controller.response.UserMessageResponse;
 import com.cfe.chat.domain.Message;
 import com.cfe.chat.domain.UserMessage;
 import com.cfe.chat.domain.custom.UserMessageHistory;
+import com.cfe.chat.domain.views.LastChatMessage;
 import com.cfe.chat.exception.InvalidDataUpdateException;
 import com.cfe.chat.service.MessageService;
 import lombok.AllArgsConstructor;
@@ -38,11 +41,30 @@ public class MessageController {
     @GetMapping("/{userId}/lastChat")
     private ResponseEntity<?> lastChat(@PathVariable Long userId) {
         log.debug("getting Users with Messages as lastChat by user Id: {}", userId);
-        List<UserMessage> userMessages = messageService.getUsersToWhomSendMessagesRecently(userId);
-        List<UserMessageDto> userMessageDtos = new ArrayList<>();
-        userMessages.forEach(userMessage -> userMessageDtos.add(userMessageMapper.toUserMessageDto(userMessage)));
-        log.info("user messages found :{}", userMessageDtos.size());
-        return ResponseEntity.ok(UserMessageResponse.builder().count(userMessageDtos.size()).data(userMessageDtos).build());
+//        List<UserMessage> userMessages = messageService.getUsersToWhomSendMessagesRecently(userId);
+//        List<UserMessageDto> userMessageDtos = new ArrayList<>();
+//        userMessages.forEach(userMessage -> userMessageDtos.add(userMessageMapper.toUserMessageDto(userMessage)));
+//        log.info("user messages found :{}", userMessageDtos.size());
+        List<LastChatMessage> lastChatMessageList = messageService.getLastChatMessages(userId);
+        log.info("lastChatMessageList: {}", lastChatMessageList);
+
+        List<LastChatMessageDto> lastChatMessageDtoList = new ArrayList<>();
+        lastChatMessageList.forEach(lastChatMessage ->  {
+            LastChatMessageDto lastChatMessageDto = LastChatMessageDto.builder()
+                    .id(lastChatMessage.getId())
+                    .createdAt(lastChatMessage.getCreatedAt())
+                    .updatedAt(lastChatMessage.getUpdatedAt())
+                    .active(lastChatMessage.getActive())
+                    .messageBody(lastChatMessage.getMessageBody())
+                    .userId(lastChatMessage.getUserId())
+                    .userName(lastChatMessage.getUserName())
+                    .build();
+            lastChatMessageDtoList.add(lastChatMessageDto);
+        });
+
+        log.info("lastChatMessageDtoList: {}", lastChatMessageDtoList);
+
+        return ResponseEntity.ok(LastMessagesWithUsersResponse.builder().count(lastChatMessageList.size()).data(lastChatMessageDtoList).build());
     }
 
     @GetMapping("/{senderId}/{receiverId}/history")

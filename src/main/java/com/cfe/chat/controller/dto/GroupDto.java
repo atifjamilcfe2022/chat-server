@@ -19,4 +19,5 @@ public class GroupDto {
     private boolean active;
     private OffsetDateTime createdAt;
     private List<UserDto> users;
+    private GroupMessageHistoryDto groupMessageHistory;
 }

@@ -149,6 +149,7 @@ public class GroupService {
     }
 
     public GroupResponse getGroupDetailsByUser(Long userId) {
+        OffsetDateTime dateTime = OffsetDateTime.now().minusDays(chatServerProperties.getMessageHistoryDays());
         List<Group> groups = userGroupService.findGroupsOfUser(userId);
         List<GroupDto> groupList = new ArrayList<>();
         if (!groups.isEmpty()) {
@@ -160,6 +161,7 @@ public class GroupService {
                     users.forEach(user -> userDtoList.add(userMapper.toUserDto(user)));
                 }
                 groupDto.setUsers(userDtoList);
+                groupDto.setGroupMessageHistory(userGroupService.getLastMessageInGroup(dateTime, group));
                 groupList.add(groupDto);
             });
         }

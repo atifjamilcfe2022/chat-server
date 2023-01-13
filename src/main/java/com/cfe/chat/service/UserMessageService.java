@@ -104,9 +104,16 @@ public class UserMessageService {
 //        log.info("UserMessages updated successfully");
 //    }
 
-    public List<UserMessage> getUsersWithChatMadeRecently(User user) {
-        log.debug("Getting all users who chat with user: {} recently", user);
-        List<UserMessage> userMessages = userMessageRepository.findRecipientChatWithUser(user);
+    public List<UserMessage> getRecipientWhoReceiveMessageFromUser(User user) {
+        log.debug("Getting all users who Receive message from user: {} recently", user);
+        List<UserMessage> userMessages = userMessageRepository.findRecipientWhoReceiveMessageFromUser(user);
+        log.info("Found {} userMessages", userMessages);
+        return userMessages;
+    }
+
+    public List<UserMessage> getSendersWhoSendMessageToUser(User user) {
+        log.debug("Getting all users who send message to user: {} recently", user);
+        List<UserMessage> userMessages = userMessageRepository.findSendersWhoSendMessageToUser(user);
         log.info("Found {} userMessages", userMessages);
         return userMessages;
     }

@@ -23,7 +23,12 @@ public interface UserMessageRepository extends JpaRepository<UserMessage, Long> 
             "(SELECT MAX(um1.id) FROM UserMessage um1 where um1.message IN " +
             "(SELECT m FROM Message m WHERE m.sender = :sender) " +
             "GROUP BY um1.receiver)")
-    List<UserMessage> findRecipientChatWithUser(User sender);
+    List<UserMessage> findRecipientWhoReceiveMessageFromUser(User sender);
+
+    @Query("SELECT um FROM UserMessage um WHERE um.id IN " +
+            "(SELECT MAX(um2.id) FROM Message m2 INNER JOIN UserMessage um2 ON m2.id = um2.message " +
+            "WHERE um2.receiver = :sender GROUP BY m2.sender)")
+    List<UserMessage> findSendersWhoSendMessageToUser(User sender);
 
     List<UserMessage> findByMessageIn(List<Message> messages);
 }

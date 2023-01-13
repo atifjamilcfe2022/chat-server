@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -108,5 +110,15 @@ public class UserGroupMessageService {
     @Transactional
     public void delete(UserGroupMessage userGroupMessage) {
         userGroupMessageRepository.delete(userGroupMessage);
+    }
+
+    public List<Object[]> getLastMessageSendInGroup(List<UserGroup> userGroups, OffsetDateTime dateTime) {
+        log.debug("finding last message by userGroups: {}", userGroups);
+        return userGroupMessageRepository.getLastMessageSendInGroup(userGroups.stream().map(UserGroup::getId).collect(Collectors.toList()), dateTime);
+    }
+
+    public List<UserGroupMessage> getLastMessageSendInGroup(OffsetDateTime dateTime, List<UserGroup> userGroups){
+        log.debug("finding last message by date: {} and userGroups: {}", dateTime, userGroups);
+        return userGroupMessageRepository.findFirstByCreatedAtGreaterThanAndUserGroupInOrderByCreatedAtDesc(dateTime, userGroups);
     }
 }

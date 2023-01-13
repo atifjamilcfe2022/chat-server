@@ -5,13 +5,14 @@ import com.cfe.chat.controller.request.MessageRequest;
 import com.cfe.chat.domain.Message;
 import com.cfe.chat.domain.UserMessage;
 import com.cfe.chat.domain.custom.UserMessageHistory;
+import com.cfe.chat.domain.views.LastChatMessage;
 import com.cfe.chat.exception.DataNotFoundException;
+import com.cfe.chat.repository.LastChatMessageViewRepository;
 import com.cfe.chat.repository.MessageRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -23,6 +24,7 @@ public class MessageService {
 
     private final ChatServerProperties chatServerProperties;
     private final MessageRepository messageRepository;
+    private final LastChatMessageViewRepository lastChatMessageViewRepository;
     private final UserMessageService userMessageService;
 
     private UserService userService;
@@ -79,7 +81,7 @@ public class MessageService {
 
     public void deleteMessage(Message message) {
         log.debug("Deleting message: {}", message);
-        if(message != null) {
+        if (message != null) {
             messageRepository.delete(message);
             log.info("message deleted successfully");
         }
@@ -92,9 +94,44 @@ public class MessageService {
         return messages;
     }
 
-    public List<UserMessage> getUsersToWhomSendMessagesRecently(Long userId) {
-        return userMessageService.getUsersWithChatMadeRecently(userService.getUser(userId));
+    public List<LastChatMessage> getLastChatMessages(Long userId){
+        log.debug("getting last messages with users");
+        List<LastChatMessage> lastChatMessageList =
+                lastChatMessageViewRepository.getLastChatMessages(userService.getUser(userId).getId());
+        log.info("lastChatMessageList: {}", lastChatMessageList.size());
+        return lastChatMessageList;
     }
+
+//    public List<UserMessage> getUsersToWhomSendMessagesRecently(Long userId) {
+//        List<UserMessage> userMessagesReceivedByOtherUser = userMessageService.getRecipientWhoReceiveMessageFromUser(userService.getUser(userId));
+//        List<UserMessage> userMessagesSendByOtherUser = userMessageService.getSendersWhoSendMessageToUser(userService.getUser(userId));
+//        List<LastMessagesWithUsers> lastMessagesWithUsers = new ArrayList<>();
+//        userMessagesSendByOtherUser.forEach(userMessageWithUserAsReceiver -> {
+//            lastMessagesWithUsers.add(LastMessagesWithUsers.builder()
+//                            .id(userMessageWithUserAsReceiver.getMessage().getId())
+//                            .fullName(userMessageWithUserAsReceiver.getReceiver().getFullName())
+//                            .messageBody(userMessageWithUserAsReceiver.getMessage().getMessageBody())
+//                            .createdAt(userMessageWithUserAsReceiver.getMessage().getCreatedAt())
+//                    .build());
+//        });
+//        userMessagesReceivedByOtherUser.stream().filter(userMessageWithUserAsSender -> {
+//            lastMessagesWithUsers.forEach(lastMessagesWithUsers1 -> {
+//                if(userMessageWithUserAsSender.getMessage().getSender().getId().equals(lastMessagesWithUsers1.getId())){
+//                    if(userMessageWithUserAsSender.getMessage().getCreatedAt().isAfter(lastMessagesWithUsers1.getCreatedAt())){
+//                        lastMessagesWithUsers1.setId(userMessageWithUserAsSender.getMessage().getId());
+//                        lastMessagesWithUsers1.setFullName(userMessageWithUserAsSender.getMessage().getSender().getFullName());
+//                        lastMessagesWithUsers1.setMessageBody(userMessageWithUserAsSender.getMessage().getMessageBody());
+//                        lastMessagesWithUsers1.setCreatedAt(userMessageWithUserAsSender.getMessage().getCreatedAt());
+//                    }
+//                }
+//            });
+//            if (lastMessagesWithUsers.getReceiver().getId()
+//                    .equals(userMessageWithUserAsSender.getMessage().getId())) {
+//                return true;
+//            }
+//            return false;
+//        }).collect(Collectors.toList());
+//    }
 
     public List<UserMessageHistory> userMessagesHistory(Long senderId, Long receiverId) {
         return userMessageService.userMessagesHistory(senderId, receiverId);
@@ -105,9 +142,9 @@ public class MessageService {
         log.debug("Cron job execution started for deleting user messages");
         long startTime = System.currentTimeMillis() / 1000;
         List<Message> messages = findByCreatedAt(ZonedDateTime.now().minusDays(chatServerProperties.getMessageHistoryDays()));
-        if(!messages.isEmpty()) {
+        if (!messages.isEmpty()) {
             List<UserMessage> userMessages = userMessageService.findByMessageIn(messages);
-            if(!userMessages.isEmpty()){
+            if (!userMessages.isEmpty()) {
                 userMessages.forEach(userMessage -> {
                     log.debug("deleting userMessage: {}", userMessage);
                     userMessageService.delete(userMessage);

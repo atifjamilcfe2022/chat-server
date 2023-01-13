@@ -1,5 +1,7 @@
 package com.cfe.chat.service;
 
+import com.cfe.chat.controller.dto.GroupMessageHistoryDto;
+import com.cfe.chat.controller.mapper.UserMapper;
 import com.cfe.chat.controller.request.AddGroupAndUserGroupsRequest;
 import com.cfe.chat.controller.request.UpdateGroupRequest;
 import com.cfe.chat.controller.request.UserGroupRequest;
@@ -7,6 +9,7 @@ import com.cfe.chat.controller.response.GroupMessageHistoryResponse;
 import com.cfe.chat.domain.Group;
 import com.cfe.chat.domain.User;
 import com.cfe.chat.domain.UserGroup;
+import com.cfe.chat.domain.UserGroupMessage;
 import com.cfe.chat.domain.custom.GroupMessageHistory;
 import com.cfe.chat.exception.DataNotFoundException;
 import com.cfe.chat.repository.UserGroupRepository;
@@ -30,6 +33,7 @@ public class UserGroupService {
 
     private final UserGroupRepository userGroupRepository;
     private final UserService userService;
+    private final UserMapper userMapper;
     private final UserGroupMessageService userGroupMessageService;
 //    private final GroupService groupService;
 
@@ -235,5 +239,39 @@ public class UserGroupService {
     public List<GroupMessageHistory> messagesHistoryByGroup(Group group, OffsetDateTime dateTime) {
         List<UserGroup> userGroups = userGroupRepository.findUserGroup(group);
         return userGroupMessageService.messagesHistoryByGroup(userGroups, dateTime);
+    }
+
+    public GroupMessageHistoryDto getLastMessageInGroup(Group group, OffsetDateTime dateTime) {
+        log.debug("finding last message in group");
+        List<UserGroup> userGroups = userGroupRepository.findUserGroup(group);
+        List<Object[]> groupMessageHistoryList = userGroupMessageService.getLastMessageSendInGroup(userGroups, dateTime);
+        log.info("GroupMessageHistory found: {}", groupMessageHistoryList);
+        if (groupMessageHistoryList != null && groupMessageHistoryList.size() > 0) {
+            Object[] groupMessageHistoryRecord = groupMessageHistoryList.get(0);
+            return GroupMessageHistoryDto.builder()
+                    .id(Long.parseLong((String.valueOf(groupMessageHistoryRecord[0]))))
+                    .messageBody(String.valueOf(groupMessageHistoryRecord[1]))
+                    .sender(userMapper.toUserDto(userService.getUser(Long.parseLong(String.valueOf(groupMessageHistoryRecord[2])))))
+                    .createdAt(OffsetDateTime.parse(String.valueOf(groupMessageHistoryRecord[3])))
+                    .build();
+        }
+        return null;
+    }
+
+    public GroupMessageHistoryDto getLastMessageInGroup(OffsetDateTime dateTime, Group group) {
+        log.debug("finding last message in group");
+        List<UserGroup> userGroups = userGroupRepository.findUserGroup(group);
+        List<UserGroupMessage> userGroupMessages = userGroupMessageService.getLastMessageSendInGroup(dateTime, userGroups);
+        log.info("userGroupMessages found: {}", userGroupMessages);
+        if (!userGroupMessages.isEmpty()) {
+            UserGroupMessage userGroupMessage = userGroupMessages.get(0);
+            return GroupMessageHistoryDto.builder()
+                    .id(userGroupMessage.getMessage().getId())
+                    .messageBody(userGroupMessage.getMessage().getMessageBody())
+                    .sender(userMapper.toUserDto(userGroupMessage.getMessage().getSender()))
+                    .createdAt(userGroupMessage.getMessage().getCreatedAt())
+                    .build();
+        }
+        return null;
     }
 }
