@@ -20,4 +20,5 @@ public class GroupDto {
     private OffsetDateTime createdAt;
     private List<UserDto> users;
     private GroupMessageHistoryDto groupMessageHistory;
+    private Integer unreadMessageCount;
 }

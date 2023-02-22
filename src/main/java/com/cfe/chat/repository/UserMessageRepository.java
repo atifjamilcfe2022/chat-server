@@ -4,6 +4,7 @@ import com.cfe.chat.domain.Message;
 import com.cfe.chat.domain.custom.UserMessageHistory;
 import com.cfe.chat.domain.User;
 import com.cfe.chat.domain.UserMessage;
+import com.cfe.chat.enums.MessageStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -31,4 +32,8 @@ public interface UserMessageRepository extends JpaRepository<UserMessage, Long> 
     List<UserMessage> findSendersWhoSendMessageToUser(User sender);
 
     List<UserMessage> findByMessageIn(List<Message> messages);
+
+    @Query("SELECT um FROM Message m INNER JOIN UserMessage um ON m.id = um.message " +
+            "WHERE m.sender = :sender AND um.receiver = :receiver AND um.messageStatus != :messageStatus")
+    List<UserMessage> findUnreadMessageForUsers(User sender, User receiver, MessageStatus messageStatus);
 }

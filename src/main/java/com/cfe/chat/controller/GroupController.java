@@ -9,6 +9,7 @@ import com.cfe.chat.controller.response.GroupMessageHistoryResponse;
 import com.cfe.chat.controller.response.GroupResponse;
 import com.cfe.chat.domain.Group;
 import com.cfe.chat.domain.custom.GroupMessageHistory;
+import com.cfe.chat.enums.MessageStatus;
 import com.cfe.chat.exception.InvalidDataUpdateException;
 import com.cfe.chat.service.GroupService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -128,5 +129,30 @@ public class GroupController {
         log.debug("Getting messages history of a group");
         GroupMessageHistoryResponse groupMessageHistoryResponse = groupService.messagesHistoryByGroup(groupId);
         return ResponseEntity.ok(groupMessageHistoryResponse);
+    }
+
+//    @PutMapping("/{userGroupMessageId}/status/{messageStatus}")
+//    private ResponseEntity<?> updateUserGroupMessageStatus(@PathVariable Long userGroupMessageId,
+//                                                           @PathVariable MessageStatus messageStatus) {
+//        log.debug("Updating message status");
+//        groupService.updateUserGroupMessageStatus(userGroupMessageId, messageStatus);
+//        return ResponseEntity.noContent().build();
+//    }
+
+//    @PutMapping("/{groupId}/users/{userId}/readAll")
+//    private ResponseEntity<?> readAll(@PathVariable Long groupId,
+//                                      @PathVariable Long userId) {
+//        log.debug("marking all messages for user: {} in group: {}", userId, groupId);
+//        groupService.markAllRead(groupId, userId);
+//        return ResponseEntity.noContent().build();
+//    }
+
+    @PutMapping("/{groupId}/users/{userId}/lastRead/{messageId}")
+    private ResponseEntity<?> updateUserGroupMessageStatus(@PathVariable Long groupId,
+                                                           @PathVariable Long userId,
+                                                           @PathVariable Long messageId) {
+        log.debug("Updating last read message status");
+        groupService.updateLastReadGroupMessageForUser(groupId, userId, messageId);
+        return ResponseEntity.noContent().build();
     }
 }

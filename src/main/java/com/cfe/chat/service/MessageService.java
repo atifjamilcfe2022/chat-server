@@ -1,11 +1,13 @@
 package com.cfe.chat.service;
 
 import com.cfe.chat.config.properties.ChatServerProperties;
+import com.cfe.chat.controller.dto.LastChatMessageDto;
 import com.cfe.chat.controller.request.MessageRequest;
 import com.cfe.chat.domain.Message;
 import com.cfe.chat.domain.UserMessage;
 import com.cfe.chat.domain.custom.UserMessageHistory;
 import com.cfe.chat.domain.views.LastChatMessage;
+import com.cfe.chat.enums.MessageStatus;
 import com.cfe.chat.exception.DataNotFoundException;
 import com.cfe.chat.repository.LastChatMessageViewRepository;
 import com.cfe.chat.repository.MessageRepository;
@@ -15,6 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -94,12 +97,27 @@ public class MessageService {
         return messages;
     }
 
-    public List<LastChatMessage> getLastChatMessages(Long userId){
+    public List<LastChatMessageDto> getLastChatMessages(Long userId){
         log.debug("getting last messages with users");
         List<LastChatMessage> lastChatMessageList =
                 lastChatMessageViewRepository.getLastChatMessages(userService.getUser(userId).getId());
         log.info("lastChatMessageList: {}", lastChatMessageList.size());
-        return lastChatMessageList;
+
+        List<LastChatMessageDto> lastChatMessageDtoList = new ArrayList<>();
+        lastChatMessageList.forEach(lastChatMessage -> {
+            LastChatMessageDto lastChatMessageDto = LastChatMessageDto.builder()
+                    .id(lastChatMessage.getId())
+                    .createdAt(lastChatMessage.getCreatedAt())
+                    .updatedAt(lastChatMessage.getUpdatedAt())
+                    .active(lastChatMessage.getActive())
+                    .messageBody(lastChatMessage.getMessageBody())
+                    .userId(lastChatMessage.getUserId())
+                    .userName(lastChatMessage.getUserName())
+                    .unreadMessageCount(userMessageService.getUnreadMessages(lastChatMessage.getUserId(), userId))
+                    .build();
+            lastChatMessageDtoList.add(lastChatMessageDto);
+        });
+        return lastChatMessageDtoList;
     }
 
 //    public List<UserMessage> getUsersToWhomSendMessagesRecently(Long userId) {
@@ -156,4 +174,22 @@ public class MessageService {
         long endTime = System.currentTimeMillis() / 1000;
         log.debug("Cron job execution ended. Total time taken: {} ", endTime - startTime);
     }
+
+    public void updateUsersMessageStatus(Long userMessageId, MessageStatus messageStatus) {
+        log.debug("updating userMessage: {} status: {}", userMessageId, messageStatus);
+        userMessageService.updateUsersMessageStatus(userMessageId, messageStatus);
+        log.info("UserMessages updated successfully");
+    }
+
+    public void markAllRead(Long senderId, Long receiverId) {
+        userMessageService.markAllRead(senderId, receiverId);
+    }
+
+    //    public void updateUsersMessageStatus(Long userMessageId, MessageStatus messageStatus) {
+//        log.debug("updating userMessage: {} status: {}", userMessageId, messageStatus);
+//        UserMessage userMessage = getUserMessage(userMessageId);
+//        userMessage.setMessageStatus(messageStatus);
+//        userMessageRepository.save(userMessage);
+//        log.info("UserMessages updated successfully");
+//    }
 }

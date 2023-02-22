@@ -16,8 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,13 +27,13 @@ public class UserGroupMessageService {
     private final UserGroupMessageRepository userGroupMessageRepository;
     private final MessageService messageService;
 
-//    public UserGroupMessage getUserGroupMessage(Long userGroupMessageId) {
-//        log.debug("Getting userGroupMessage by Id: {}", userGroupMessageId);
-//        UserGroupMessage userGroupMessage = userGroupMessageRepository.findById(userGroupMessageId)
-//                .orElseThrow(() -> new DataNotFoundException("userGroupMessage not found with id: " + userGroupMessageId));
-//        log.info("Found userGroupMessage: {}", userGroupMessage);
-//        return userGroupMessage;
-//    }
+    public UserGroupMessage getUserGroupMessage(Long userGroupMessageId) {
+        log.debug("Getting userGroupMessage by Id: {}", userGroupMessageId);
+        UserGroupMessage userGroupMessage = userGroupMessageRepository.findById(userGroupMessageId)
+                .orElseThrow(() -> new DataNotFoundException("userGroupMessage not found with id: " + userGroupMessageId));
+        log.info("Found userGroupMessage: {}", userGroupMessage);
+        return userGroupMessage;
+    }
 
     public UserGroupMessage addUserGroupMessage(UserGroup userGroup, Message message) {
         UserGroupMessage userGroupMessage = UserGroupMessage.builder()
@@ -120,5 +119,15 @@ public class UserGroupMessageService {
     public List<UserGroupMessage> getLastMessageSendInGroup(OffsetDateTime dateTime, List<UserGroup> userGroups){
         log.debug("finding last message by date: {} and userGroups: {}", dateTime, userGroups);
         return userGroupMessageRepository.findFirstByCreatedAtGreaterThanAndUserGroupInOrderByCreatedAtDesc(dateTime, userGroups);
+    }
+
+    public Integer findAllMessagesIdByUserGroups(List<UserGroup> userGroups, Long messageId) {
+        log.debug("finding all messages by userGroups greater than last read message: {}", messageId);
+        List<UserGroupMessage> userGroupMessages = userGroupMessageRepository.findByUserGroupInAndMessageIdGreaterThan(userGroups, messageId);
+        log.info("found {} messages for group", userGroupMessages.size());
+//        Set<Long> ids = new HashSet<>();
+//        userGroupMessages.forEach(userGroupMessage -> ids.add(userGroupMessage.getMessage().getId()));
+//        return new ArrayList<>(ids);
+        return userGroupMessages.size();
     }
 }

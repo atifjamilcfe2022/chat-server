@@ -14,6 +14,7 @@ public class UserDto {
 
     @JsonProperty("No")
     private Long id;
+    @JsonProperty("userName")
     private String username;
     @JsonProperty("Full_Name")
     private String fullName;

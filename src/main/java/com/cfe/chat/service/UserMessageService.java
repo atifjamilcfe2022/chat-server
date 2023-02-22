@@ -25,7 +25,7 @@ public class UserMessageService {
 
     private final ChatServerProperties chatServerProperties;
     private final UserMessageRepository userMessageRepository;
-//    private final MessageService messageService;
+    //    private final MessageService messageService;
     private final UserService userService;
 
     public UserMessage addUserMessage(User user, Message message) {
@@ -34,9 +34,18 @@ public class UserMessageService {
                 .message(message)
                 .receiver(user)
                 .active(Boolean.TRUE)
+                .messageStatus(MessageStatus.INITIATED)
                 .build();
         userMessageRepository.save(userMessage);
         log.info("message recipient saved. Id: {}", userMessage.getId());
+        return userMessage;
+    }
+
+    public UserMessage getUserMessage(Long userMessageId) {
+        log.debug("Getting message recipient by userMessageRecipientId: {}", userMessageId);
+        UserMessage userMessage = userMessageRepository.findById(userMessageId)
+                .orElseThrow(() -> new DataNotFoundException("User Message not found with id: " + userMessageId));
+        log.info("Found UserMessage: {}", userMessage);
         return userMessage;
     }
 
@@ -47,13 +56,6 @@ public class UserMessageService {
 //        return userMessages;
 //    }
 //
-//    public UserMessage getUserMessage(Long userMessageId) {
-//        log.debug("Getting message recipient by userMessageRecipientId: {}", userMessageId);
-//        UserMessage userMessage = userMessageRepository.findById(userMessageId)
-//                .orElseThrow(() -> new DataNotFoundException("User Message not found with id: " + userMessageId));
-//        log.info("Found UserMessage: {}", userMessage);
-//        return userMessage;
-//    }
 
 //    public UserMessage addUserMessage(UserMessageRequest userMessageRequest) {
 //        log.debug("saving userMessage: {}", userMessageRequest);
@@ -96,13 +98,13 @@ public class UserMessageService {
         return userMessageHistories;
     }
 
-//    public void updateUsersMessageStatus(Long userMessageId, MessageStatus messageStatus) {
-//        log.debug("updating userMessage: {} status: {}", userMessageId, messageStatus);
-//        UserMessage userMessage = getUserMessage(userMessageId);
-//        userMessage.setMessageStatus(messageStatus);
-//        userMessageRepository.save(userMessage);
-//        log.info("UserMessages updated successfully");
-//    }
+    public void updateUsersMessageStatus(Long userMessageId, MessageStatus messageStatus) {
+        log.debug("updating userMessage: {} status: {}", userMessageId, messageStatus);
+        UserMessage userMessage = getUserMessage(userMessageId);
+        userMessage.setMessageStatus(messageStatus);
+        userMessageRepository.save(userMessage);
+        log.info("UserMessages updated successfully");
+    }
 
     public List<UserMessage> getRecipientWhoReceiveMessageFromUser(User user) {
         log.debug("Getting all users who Receive message from user: {} recently", user);
@@ -124,5 +126,30 @@ public class UserMessageService {
 
     public void delete(UserMessage userMessage) {
         userMessageRepository.delete(userMessage);
+    }
+
+    public void markAllRead(Long senderId, Long receiverId) {
+        log.debug("finding unread message by sender: {} and receiver: {}", senderId, receiverId);
+        List<UserMessage> userMessages =
+                userMessageRepository.findUnreadMessageForUsers(
+                        userService.getUser(senderId),
+                        userService.getUser(receiverId),
+                        MessageStatus.READ);
+        log.info("{} unread messages found", userMessages.size());
+        if(!userMessages.isEmpty()){
+            userMessages.forEach(userMessage -> {
+                log.debug("marking as read message: {}", userMessage);
+                userMessage.setMessageStatus(MessageStatus.READ);
+                userMessageRepository.save(userMessage);
+            });
+        }
+    }
+
+    public Integer getUnreadMessages(Long senderId, Long receiverId) {
+        log.debug("finding unread message by sender: {} and receiver: {}", senderId, receiverId);
+        return userMessageRepository.findUnreadMessageForUsers(
+                        userService.getUser(senderId),
+                        userService.getUser(receiverId),
+                        MessageStatus.READ).size();
     }
 }

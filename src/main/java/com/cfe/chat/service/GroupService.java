@@ -15,6 +15,7 @@ import com.cfe.chat.controller.response.GroupResponse;
 import com.cfe.chat.controller.response.UserGroupResponse;
 import com.cfe.chat.domain.*;
 import com.cfe.chat.domain.custom.GroupMessageHistory;
+import com.cfe.chat.enums.MessageStatus;
 import com.cfe.chat.exception.DataNotFoundException;
 import com.cfe.chat.repository.GroupRepository;
 import lombok.AllArgsConstructor;
@@ -162,6 +163,7 @@ public class GroupService {
                 }
                 groupDto.setUsers(userDtoList);
                 groupDto.setGroupMessageHistory(userGroupService.getLastMessageInGroup(dateTime, group));
+                groupDto.setUnreadMessageCount(userGroupService.getUnreadMessageOfUserInGroup(userId, group));
                 groupList.add(groupDto);
             });
         }
@@ -207,4 +209,17 @@ public class GroupService {
         long endTime = System.currentTimeMillis() / 1000;
         log.debug("Cron job execution ended. Total time taken: {} ", endTime - startTime);
     }
+
+    public void updateLastReadGroupMessageForUser(Long groupId, Long userId, Long messageId) {
+        userGroupService.updateLastReadGroupMessageForUser(getGroup(groupId), userId, messageService.getMessage(messageId));
+    }
+
+//    public void updateUserGroupMessageStatus(Long userGroupMessageId, MessageStatus messageStatus) {
+//        userGroupMessageService.updateStatusOfUserGroupMessage(userGroupMessageId, messageStatus);
+//    }
+//
+//    @Transactional
+//    public void markAllRead(Long groupId, Long userId) {
+//        userGroupService.markAllRead(getGroup(groupId), userId);
+//    }
 }

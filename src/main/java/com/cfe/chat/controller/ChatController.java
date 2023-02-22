@@ -84,22 +84,22 @@ public class ChatController {
         return chatMessageResponse;
     }
 
-    @PostMapping("/user/checkActive/{userId}")
-    public List<ActiveInfo> checkActive(@RequestBody CheckActiveRequest checkActiveRequest){
-        return chatService.checkActive(checkActiveRequest.getUserIds());
-    }
+//    @PostMapping("/user/checkActive/{userId}")
+//    public List<ActiveInfo> checkActive(@RequestBody CheckActiveRequest checkActiveRequest){
+//        return chatService.checkActive(checkActiveRequest.getUserIds());
+//    }
 
-    @GetMapping("/user/updateState/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateState(@PathVariable Long userId){
-        chatService.updateState(userId);
-    }
+//    @GetMapping("/user/updateState/{userId}")
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    public void updateState(@PathVariable Long userId){
+//        chatService.updateState(userId);
+//    }
 
 
-    @PostMapping("/test/private/message")
-    public @ResponseBody ChatMessageResponse sendMessage(@RequestBody ChatMessageRequest chatMessageRequest){
-        return chatService.sendMessage(chatMessageRequest);
-    }
+//    @PostMapping("/test/private/message")
+//    public @ResponseBody ChatMessageResponse sendMessage(@RequestBody ChatMessageRequest chatMessageRequest){
+//        return chatService.sendMessage(chatMessageRequest);
+//    }
 
     @GetMapping({"/", "/home"})
     public @ResponseBody String sendMessage(){

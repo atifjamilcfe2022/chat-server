@@ -18,7 +18,7 @@ public class UserService {
 
     public List<User> getUsers() {
         log.debug("getting all users");
-        List<User> users = userRepository.findAll();
+        List<User> users = userRepository.findActiveUsers();
         log.info("found {} users", users.size());
         return users;
     }

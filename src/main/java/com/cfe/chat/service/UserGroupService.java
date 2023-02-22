@@ -6,10 +6,7 @@ import com.cfe.chat.controller.request.AddGroupAndUserGroupsRequest;
 import com.cfe.chat.controller.request.UpdateGroupRequest;
 import com.cfe.chat.controller.request.UserGroupRequest;
 import com.cfe.chat.controller.response.GroupMessageHistoryResponse;
-import com.cfe.chat.domain.Group;
-import com.cfe.chat.domain.User;
-import com.cfe.chat.domain.UserGroup;
-import com.cfe.chat.domain.UserGroupMessage;
+import com.cfe.chat.domain.*;
 import com.cfe.chat.domain.custom.GroupMessageHistory;
 import com.cfe.chat.exception.DataNotFoundException;
 import com.cfe.chat.repository.UserGroupRepository;
@@ -35,7 +32,7 @@ public class UserGroupService {
     private final UserService userService;
     private final UserMapper userMapper;
     private final UserGroupMessageService userGroupMessageService;
-//    private final GroupService groupService;
+    private final ReadStatusService readStatusService;
 
 
 //    public List<UserGroup> findUserGroups() {
@@ -273,5 +270,32 @@ public class UserGroupService {
                     .build();
         }
         return null;
+    }
+
+    public Integer getUnreadMessageOfUserInGroup(Long userId, Group group) {
+        UserGroup userGroup = findByUserGroup(userService.getUser(userId), group);
+        ReadStatus readStatus = readStatusService.findLastReadMessage(userGroup);
+
+        List<UserGroup> userGroups = userGroupRepository.findByIdNotEqualsAndGroupEquals(userGroup, group);
+
+        return userGroupMessageService.findAllMessagesIdByUserGroups(userGroups, readStatus.getMessage().getId());
+//        List<Long> messageIds = userGroupMessageService.findAllMessagesIdByUserGroups(userGroups, readStatus.getMessage().getId());
+//        if(messageIds.contains(readStatus.getMessage().getId())){
+//            int messageIndex = messageIds.indexOf(readStatus.getMessage().getId());
+//            log.info("messageIds: {}", messageIds);
+//            log.info("messageIndex: {}", messageIndex);
+//            return (messageIds.size() - messageIndex) - 1;
+//        }
+//        return 0;
+    }
+
+//    public void markAllRead(Group group, Long userId) {
+//        UserGroup userGroup = findByUserGroup(userService.getUser(userId), group);
+//        readStatusService.markAllRead(userGroup);
+//    }
+
+    public void updateLastReadGroupMessageForUser(Group group, Long userId, Message message) {
+        UserGroup userGroup = findByUserGroup(userService.getUser(userId), group);
+        readStatusService.updateLastReadGroupMessageForUser(userGroup, message);
     }
 }

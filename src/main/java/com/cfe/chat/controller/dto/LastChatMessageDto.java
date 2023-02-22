@@ -26,4 +26,5 @@ public class LastChatMessageDto {
     private String messageBody;
     private Long userId;
     private String userName;
+    private Integer unreadMessageCount;
 }

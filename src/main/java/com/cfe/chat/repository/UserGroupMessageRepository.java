@@ -1,6 +1,7 @@
 package com.cfe.chat.repository;
 
 
+import com.cfe.chat.domain.Group;
 import com.cfe.chat.domain.Message;
 import com.cfe.chat.domain.custom.GroupMessageHistory;
 import com.cfe.chat.domain.UserGroup;
@@ -34,6 +35,8 @@ public interface UserGroupMessageRepository extends JpaRepository<UserGroupMessa
     List<UserGroupMessage> findByMessageIn(List<Message> messages);
 
     List<UserGroupMessage> findByUserGroupIn(List<UserGroup> userGroups);
+
+    List<UserGroupMessage> findByUserGroupInAndMessageIdGreaterThan(List<UserGroup> userGroups, Long messageId);
 
     List<UserGroupMessage> findFirstByCreatedAtGreaterThanAndUserGroupInOrderByCreatedAtDesc(OffsetDateTime dateTime, List<UserGroup> userGroups);
 }

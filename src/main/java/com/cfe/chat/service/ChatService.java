@@ -56,16 +56,16 @@ public class ChatService {
         return activeInfos;
     }
 
-    public void updateState(Long userId) {
-        ActiveInfo activeInfo = ChatServerConstants.activeInfoMap.get(userId);
-        if (activeInfo != null) {
-            activeInfo.setPingTime(OffsetDateTime.now());
-            ChatServerConstants.activeInfoMap.replace(userId, activeInfo);
-        } else {
-            activeInfo = ActiveInfo.builder().userId(userId).pingTime(OffsetDateTime.now()).build();
-            ChatServerConstants.activeInfoMap.put(userId, activeInfo);
-        }
-    }
+//    public void updateState(Long userId) {
+//        ActiveInfo activeInfo = ChatServerConstants.activeInfoMap.get(userId);
+//        if (activeInfo != null) {
+//            activeInfo.setPingTime(OffsetDateTime.now());
+//            ChatServerConstants.activeInfoMap.replace(userId, activeInfo);
+//        } else {
+//            activeInfo = ActiveInfo.builder().userId(userId).pingTime(OffsetDateTime.now()).build();
+//            ChatServerConstants.activeInfoMap.put(userId, activeInfo);
+//        }
+//    }
 
     @Transactional
     public ChatMessageResponse sendMessage(ChatMessageRequest chatMessageRequest) {

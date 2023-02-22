@@ -16,6 +16,7 @@ import com.cfe.chat.domain.Message;
 import com.cfe.chat.domain.UserMessage;
 import com.cfe.chat.domain.custom.UserMessageHistory;
 import com.cfe.chat.domain.views.LastChatMessage;
+import com.cfe.chat.enums.MessageStatus;
 import com.cfe.chat.exception.InvalidDataUpdateException;
 import com.cfe.chat.service.MessageService;
 import lombok.AllArgsConstructor;
@@ -41,30 +42,10 @@ public class MessageController {
     @GetMapping("/{userId}/lastChat")
     private ResponseEntity<?> lastChat(@PathVariable Long userId) {
         log.debug("getting Users with Messages as lastChat by user Id: {}", userId);
-//        List<UserMessage> userMessages = messageService.getUsersToWhomSendMessagesRecently(userId);
-//        List<UserMessageDto> userMessageDtos = new ArrayList<>();
-//        userMessages.forEach(userMessage -> userMessageDtos.add(userMessageMapper.toUserMessageDto(userMessage)));
-//        log.info("user messages found :{}", userMessageDtos.size());
-        List<LastChatMessage> lastChatMessageList = messageService.getLastChatMessages(userId);
-        log.info("lastChatMessageList: {}", lastChatMessageList);
-
-        List<LastChatMessageDto> lastChatMessageDtoList = new ArrayList<>();
-        lastChatMessageList.forEach(lastChatMessage ->  {
-            LastChatMessageDto lastChatMessageDto = LastChatMessageDto.builder()
-                    .id(lastChatMessage.getId())
-                    .createdAt(lastChatMessage.getCreatedAt())
-                    .updatedAt(lastChatMessage.getUpdatedAt())
-                    .active(lastChatMessage.getActive())
-                    .messageBody(lastChatMessage.getMessageBody())
-                    .userId(lastChatMessage.getUserId())
-                    .userName(lastChatMessage.getUserName())
-                    .build();
-            lastChatMessageDtoList.add(lastChatMessageDto);
-        });
-
+        List<LastChatMessageDto> lastChatMessageDtoList = messageService.getLastChatMessages(userId);
         log.info("lastChatMessageDtoList: {}", lastChatMessageDtoList);
-
-        return ResponseEntity.ok(LastMessagesWithUsersResponse.builder().count(lastChatMessageList.size()).data(lastChatMessageDtoList).build());
+        return ResponseEntity.ok(LastMessagesWithUsersResponse.builder()
+                .count(lastChatMessageDtoList.size()).data(lastChatMessageDtoList).build());
     }
 
     @GetMapping("/{senderId}/{receiverId}/history")
@@ -73,7 +54,7 @@ public class MessageController {
         List<UserMessageHistory> userMessageHistories = messageService.userMessagesHistory(senderId, receiverId);
         log.info("messages of user found :{}", userMessageHistories.size());
         List<UserMessageHistoryDto> userMessageHistoryDtos = new ArrayList<>();
-        userMessageHistories.forEach(userMessageHistory ->  {
+        userMessageHistories.forEach(userMessageHistory -> {
             UserMessageHistoryDto userMessageHistoryDto = UserMessageHistoryDto.builder()
                     .id(userMessageHistory.getId())
                     .messageBody(userMessageHistory.getMessageBody())
@@ -85,6 +66,23 @@ public class MessageController {
             userMessageHistoryDtos.add(userMessageHistoryDto);
         });
         return ResponseEntity.ok(UserMessageHistoryResponse.builder().count(userMessageHistoryDtos.size()).data(userMessageHistoryDtos).build());
+    }
+
+    @PutMapping("/{userMessageId}/status/{messageStatus}")
+    private ResponseEntity<?> updateUsersMessageStatus(@PathVariable Long userMessageId,
+                                             @PathVariable MessageStatus messageStatus) {
+        log.debug("Updating userMessage: {}, status to: {}", userMessageId, messageStatus);
+        messageService.updateUsersMessageStatus(userMessageId, messageStatus);
+        log.info("Updated users message status");
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{senderId}/{receiverId}/readAll")
+    private ResponseEntity<?> readAll(@PathVariable Long senderId, @PathVariable Long receiverId) {
+        log.debug("marking all userMessage as read for sender: {}, to receiver : {}", senderId, receiverId);
+        messageService.markAllRead(senderId, receiverId);
+        log.info("all messages marked successfully");
+        return ResponseEntity.noContent().build();
     }
 
 //    private final MessageMapper messageMapper;
