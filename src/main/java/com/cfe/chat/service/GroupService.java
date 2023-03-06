@@ -210,8 +210,9 @@ public class GroupService {
         log.debug("Cron job execution ended. Total time taken: {} ", endTime - startTime);
     }
 
-    public void updateLastReadGroupMessageForUser(Long groupId, Long userId, Long messageId) {
+    public GroupResponse updateLastReadGroupMessageForUser(Long groupId, Long userId, Long messageId) {
         userGroupService.updateLastReadGroupMessageForUser(getGroup(groupId), userId, messageService.getMessage(messageId));
+        return getGroupDetailsByUser(userId);
     }
 
 //    public void updateUserGroupMessageStatus(Long userGroupMessageId, MessageStatus messageStatus) {

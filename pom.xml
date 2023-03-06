@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.cfe</groupId>
 	<artifactId>chat-server</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 	<name>chat-server</name>
 	<description>Chat project for CFE in Spring Boot</description>
 	<properties>

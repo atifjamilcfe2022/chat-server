@@ -18,9 +18,9 @@ import java.time.OffsetDateTime;
 public class LastChatMessageDto {
 
     private Long id;
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
+//    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     private OffsetDateTime createdAt;
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
+//    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ")
     private OffsetDateTime updatedAt;
     private Boolean active;
     private String messageBody;

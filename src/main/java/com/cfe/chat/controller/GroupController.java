@@ -1,15 +1,10 @@
 package com.cfe.chat.controller;
 
 import com.cfe.chat.controller.dto.GroupDto;
-import com.cfe.chat.controller.dto.GroupMessageHistoryDto;
-import com.cfe.chat.controller.mapper.GroupMapper;
 import com.cfe.chat.controller.request.AddGroupRequest;
 import com.cfe.chat.controller.request.UpdateGroupRequest;
 import com.cfe.chat.controller.response.GroupMessageHistoryResponse;
 import com.cfe.chat.controller.response.GroupResponse;
-import com.cfe.chat.domain.Group;
-import com.cfe.chat.domain.custom.GroupMessageHistory;
-import com.cfe.chat.enums.MessageStatus;
 import com.cfe.chat.exception.InvalidDataUpdateException;
 import com.cfe.chat.service.GroupService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,9 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -152,7 +144,7 @@ public class GroupController {
                                                            @PathVariable Long userId,
                                                            @PathVariable Long messageId) {
         log.debug("Updating last read message status");
-        groupService.updateLastReadGroupMessageForUser(groupId, userId, messageId);
-        return ResponseEntity.noContent().build();
+        GroupResponse groupResponse = groupService.updateLastReadGroupMessageForUser(groupId, userId, messageId);
+        return ResponseEntity.ok(groupResponse);
     }
 }
